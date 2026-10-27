@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta name="robots" content="noindex,nofollow,noarchive">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1f6feb">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="100상점 도우미">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data:; connect-src 'none'; form-action 'none'; base-uri 'none'">
+<meta name="referrer" content="no-referrer">
+<title>100상점 붙여넣기 도우미</title>
+<style>
+  :root { --blue:#1f6feb; --green:#1a7f37; --amber:#9a6700; --red:#cf222e; --bg:#f3f5f8; --line:#dde2ea; }
+  * { box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  html,body { margin:0; background:var(--bg); color:#1b1f24; font-family:-apple-system,"Apple SD Gothic Neo","Malgun Gothic","Noto Sans KR",sans-serif; font-size:17px; }
+  header { position:sticky; top:0; z-index:5; background:#fff; border-bottom:1px solid var(--line); padding:10px 12px 0; }
+  .top { display:flex; align-items:center; gap:8px; }
+  .top h1 { font-size:18px; margin:0; flex:1; }
+  .clear { border:1px solid #f0b4b4; background:#fff5f5; color:var(--red); font-size:15px; font-weight:700; border-radius:10px; padding:8px 12px; }
+  .tabs { display:flex; gap:6px; margin-top:10px; }
+  .tab { flex:1; border:0; background:none; font-size:18px; font-weight:800; padding:12px 0; color:#57606a; border-bottom:4px solid transparent; }
+  .tab.on { color:var(--blue); border-bottom-color:var(--blue); }
+  main { padding:12px 12px 90px; }
+  .panel { display:none; } .panel.on { display:block; }
+  .big { width:100%; border:0; border-radius:16px; font-size:21px; font-weight:800; padding:18px 12px; color:#fff; background:var(--blue); box-shadow:0 2px 0 rgba(0,0,0,.08); }
+  .big:active, .btn:active, .chain:active { transform:scale(.98); }
+  textarea { width:100%; margin-top:10px; min-height:78px; max-height:180px; border:1px solid var(--line); border-radius:12px; padding:10px; font-size:16px; background:#fff; resize:vertical; font-family:inherit; }
+  textarea.has { min-height:52px; height:52px; color:#57606a; font-size:14px; }
+  .row .v.nw { white-space:nowrap; word-break:normal; font-size:17px; }
+  .row .v { min-width:0; }
+  .row .btn { min-width:62px; padding:12px 10px; }
+  .row .btn.sub { min-width:0; padding:12px 8px; }
+  .status { margin:12px 2px 6px; font-size:16px; line-height:1.45; }
+  .status .ok { color:var(--green); font-weight:700; } .status .warn { color:var(--amber); font-weight:700; } .status .bad { color:var(--red); font-weight:700; }
+  .card { background:#fff; border:1px solid var(--line); border-radius:16px; padding:4px 12px; margin-top:10px; }
+  .card.soft { background:#fafbfc; }
+  .row { display:flex; align-items:center; gap:10px; padding:11px 0; border-bottom:1px solid #eef1f5; }
+  .row:last-child { border-bottom:0; }
+  .row .k { width:64px; flex:none; font-size:14px; color:#57606a; font-weight:700; }
+  .row .v { flex:1; font-size:19px; font-weight:700; word-break:break-all; line-height:1.35; }
+  .row .v.empty { color:#b0b7c0; font-weight:500; font-size:16px; }
+  .btn { flex:none; border:0; border-radius:12px; background:#e7f0ff; color:var(--blue); font-size:17px; font-weight:800; padding:12px 14px; min-width:70px; }
+  .btn.sub { background:#eef1f5; color:#424a53; font-size:15px; min-width:0; padding:12px 10px; }
+  .btn.done { background:#dafbe1; color:var(--green); }
+  .chain { width:100%; margin-top:12px; border:0; border-radius:16px; background:var(--green); color:#fff; font-size:21px; font-weight:800; padding:18px 12px; }
+  .chain small { display:block; font-size:15px; font-weight:600; opacity:.9; margin-top:4px; }
+  .all { width:100%; margin-top:10px; border:2px solid var(--blue); background:#fff; color:var(--blue); border-radius:14px; font-size:18px; font-weight:800; padding:14px; }
+  .inv { font-size:30px; font-weight:900; letter-spacing:1px; text-align:center; padding:14px 0 4px; font-variant-numeric:tabular-nums; }
+  .wing { text-align:center; font-size:16px; color:#424a53; padding:6px 0 12px; }
+  .wing b { font-size:22px; color:#1b1f24; }
+  .copyinv { width:100%; border:0; border-radius:14px; background:var(--blue); color:#fff; font-size:21px; font-weight:800; padding:16px; margin-bottom:12px; }
+  .hint { font-size:16px; padding:10px 0; line-height:1.45; border-bottom:1px solid #eef1f5; } .hint:last-child { border-bottom:0; }
+  .muted { color:#6e7781; font-size:14px; line-height:1.5; margin:16px 4px; }
+  .toast { position:fixed; left:50%; bottom:22px; transform:translateX(-50%); background:#1b1f24; color:#fff; padding:13px 18px; border-radius:24px; font-size:16px; font-weight:700; opacity:0; transition:opacity .2s; pointer-events:none; max-width:90vw; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; z-index:10; }
+  .toast.on { opacity:.95; }
+  .hide { display:none !important; }
+  .other { display:flex; align-items:center; gap:10px; padding:8px 0; } .other span { flex:1; font-size:19px; font-weight:700; }
+</style>
+</head>
+<body>
+<header>
+  <div class="top"><h1>100상점 붙여넣기 도우미</h1><button class="clear" id="clearBtn" type="button">🗑 지우기</button></div>
+  <div class="tabs"><button class="tab on" id="tabO" type="button">📦 주문 복사</button><button class="tab" id="tabT" type="button">🚚 송장 뽑기</button></div>
+</header>
+<main>
+  <section class="panel on" id="pO">
+    <button class="big" id="pasteO" type="button">📋 주문 붙여넣기</button>
+    <textarea id="inO" placeholder="윙 주문 내용을 복사한 뒤 위 버튼을 누르세요.&#10;안 되면 여기를 길게 눌러 '붙여넣기' 하세요." autocomplete="off" autocorrect="off" spellcheck="false"></textarea>
+    <div class="status" id="stO"></div>
+    <div id="outO" class="hide">
+      <button class="chain" id="chain" type="button"></button>
+      <div class="card" id="rowsO"></div>
+      <button class="all" id="allBtn" type="button">📄 전체 복사 (받는 분·연락처·주소·메모)</button>
+      <div class="card soft" id="rowsP"></div>
+    </div>
+  </section>
+  <section class="panel" id="pT">
+    <button class="big" id="pasteT" type="button">📋 송장 붙여넣기</button>
+    <textarea id="inT" placeholder="구매처 배송조회 화면이나 택배 문자를 복사한 뒤 위 버튼을 누르세요.&#10;안 되면 여기를 길게 눌러 '붙여넣기' 하세요." autocomplete="off" autocorrect="off" spellcheck="false"></textarea>
+    <div class="status" id="stT"></div>
+    <div id="outT" class="hide">
+      <div class="card" id="invCard"></div>
+      <div class="card" id="chkCard"></div>
+    </div>
+  </section>
+  <p class="muted">고객 정보는 이 휴대폰 화면에만 잠깐 있어요. 인터넷으로 보내지 않고, 1시간이 지나거나 창을 닫으면 지워져요.</p>
+</main>
+<div class="toast" id="toast"></div>
+<script>
+/* 100상점 붙여넣기 도우미 — 글자 분석 (네트워크 호출 없음) */
+(function (root) {
+  'use strict';
+  const clean = (s) => (s == null ? '' : String(s)).replace(/\u00a0|\u200b|\ufeff/g, ' ').replace(/[ \t]+/g, ' ').trim();
+  const compact = (s) => clean(s).replace(/[\s:：*★※■□●○▶·\-]/g, '').replace(/(필수|선택)$/, '');
+  const noParen = (s) => s.replace(/\([^)]*\)|\[[^\]]*\]/g, '');
+
+  // ---------------- 주문 ----------------
+  const HEADER_WORDS = ['주문번호', '주문자명', '주문자', '주문일시', '주문일', '결제일시', '결제일', '수취인명', '수취인', '수령인', '수령자', '받는분', '받는사람',
+    '연락처', '안심번호', '전화번호', '휴대폰번호', '휴대폰', '배송주소', '배송지주소', '배송지', '기본주소', '상세주소', '주소', '우편번호', '배송진행상태', '배송상태',
+    '등록상품명', '노출상품명', '상품명', '옵션명', '옵션', '상품정보', '구매수량', '주문수량', '수량', '결제금액', '금액', '판매가', '배송비', '배송메모', '배송메세지',
+    '배송메시지', '배송요청사항', '요청사항', '묶음배송번호', '배송유형', '운송장번호', '송장번호', '택배사', '출고예정일', '개인통관고유부호', '통관고유부호', '상태', '선택', '전체', '정보', '이름', '명', '복사', '변경', '수정'];
+  const HW_RE = new RegExp('(' + HEADER_WORDS.slice().sort((a, b) => b.length - a.length).join('|') + ')', 'g');
+  function isHeaderish(v) {
+    const c = clean(v).replace(/[\s:：*★※\/|·,.()\[\]{}<>\-~_]/g, '');
+    if (!c) return true;
+    return c.replace(HW_RE, '') === '';
+  }
+  const EXAMPLE_RE = /^(예\s*\)|예\s*:|예시)|^\s*[-–—]+\s*$|^(없음|입력|선택|선택안함|해당없음)$|입력해\s*주세요|입력하세요/;
+  const badValue = (v) => !clean(v) || isHeaderish(v) || EXAMPLE_RE.test(clean(v));
+
+  const LABELS = {
+    orderNo: { re: /^(주문번호|주문번호\/?묶음배송번호)$/, score: () => 1 },
+    product: { re: /^(노출상품명|상품명|등록상품명|상품명\/옵션|상품정보|상품명옵션|주문상품)$/, score: (t) => (/^노출/.test(t) ? 4 : /^상품명/.test(t) ? 3 : /^등록/.test(t) ? 2 : 1) },
+    option: { re: /^(옵션|옵션명|옵션정보|선택옵션)$/, score: () => 1 },
+    qty: { re: /^(수량|구매수량|주문수량)$/, score: () => 1 },
+    name: { re: /^(수취인|수령인|수령자|받는분|받으시는분|받는사람|수하인|받는이)(명|이름|성명)?$/, score: () => 1 },
+    phone: {
+      re: /^(수취인|수령인|받는분|받는사람|받는이)?(연락처|연락처1|전화번호|휴대폰|휴대폰번호|휴대전화|휴대전화번호|핸드폰|안심번호|전화|휴대폰\/전화|연락처\/안심번호|연락처\(안심번호\))$/,
+      score: (t) => (/^(수취인|수령인|받는)/.test(t) ? 5 : 2) + (/안심/.test(t) ? 1 : 0) + (/2$/.test(t) ? -3 : 0)
+    },
+    zip: { re: /^(수취인|배송지)?(우편번호|우편)$/, score: () => 1 },
+    addr: {
+      re: /^(수취인|수령인|받는분|받는사람|배송지)?(주소|배송주소|배송지|배송지주소|주소지|기본주소|도로명주소|배송주소지)$/,
+      score: (t) => (/^(수취인|수령인|받는|배송)/.test(t) ? 3 : 1) + (/도로명/.test(t) ? 1 : 0)
+    },
+    addr2: { re: /^(상세주소|나머지주소)$/, score: () => 1 },
+    memo: { re: /^(배송메모|배송메세지|배송메시지|배송요청사항|요청사항|배송시요청사항|배송요청|배송메모\/요청사항|배송메시지\/요청사항|배송시메모)$/, score: () => 1 },
+    customs: { re: /^(개인통관고유부호|통관고유부호|개인통관부호|통관부호|개인통관번호)$/, score: () => 1 }
+  };
+  function labelMatch(text) {
+    const c = compact(text);
+    if (!c || c.length > 16) return null;
+    for (const v of [c, noParen(c)]) for (const key of Object.keys(LABELS)) if (v && LABELS[key].re.test(v)) return { key, t: v };
+    return null;
+  }
+  const BUYER_HEAD = /^(주문자|구매자|주문하신\s*분|보내는\s*(분|사람)|판매자|출고지|반품지|회수지)(\s*정보)?\s*[:：]?/;
+  const RECV_HEAD = /^(수취인|받는\s*(분|사람|이)|수령인|배송지)\s*정보\s*$|^배송\s*정보\s*$/;
+  const EXCLUDE_CTX = /주문자|구매자|판매자|업체|반품|회수|출고지|보내는/;
+  const SIDO = '(서울|부산|대구|인천|광주|대전|울산|세종|경기|강원|충북|충남|전북|전남|경북|경남|제주|충청북도|충청남도|전라북도|전라남도|경상북도|경상남도|전북특별자치도|강원특별자치도|제주특별자치도|경기도|강원도)';
+  const ADDR_LINE = new RegExp('(^|[\\s(\\[])' + SIDO + '[가-힣]*\\s+[가-힣]+(시|군|구)(\\s|$)|[가-힣]+(특별시|광역시|특별자치시)\\s+[가-힣]+(구|군)\\s');
+  const PHONE_RE = /(?:^|[^\d])(0\d{1,3}[-.\s)]?\d{3,4}[-.\s]?\d{4})(?!\d)/;
+  const UNIT_LINE = /^(?:[가-힣A-Za-z0-9]+\s*)?(?:제?\d+|[A-Za-z])\s*동|^\d+\s*호|\d+\s*호\s*$|\d+\s*층|^\d+-\d+(?:호)?$|^[가-힣A-Za-z0-9]+(?:아파트|빌라|맨션|오피스텔|빌딩|타워|하이츠|주택|캐슬|자이|푸르지오|래미안|힐스테이트|아이파크|e편한세상)/;
+
+  function normalizePhone(s) {
+    const src = clean(s);
+    const m = src.match(/(0\d{1,3})[-.\s)]+(\d{3,4})[-.\s]+(\d{4})(?!\d)/);
+    if (m) return m[1] + '-' + m[2] + '-' + m[3];
+    const d = (src.replace(/[\s.\-()]/g, '').match(/0\d{8,11}/) || [''])[0];
+    let parts = null;
+    if (/^050\d{9}$/.test(d)) parts = [d.slice(0, 4), d.slice(4, 8), d.slice(8)];
+    else if (/^02\d{7,8}$/.test(d)) parts = [d.slice(0, 2), d.slice(2, d.length - 4), d.slice(-4)];
+    else if (/^0\d{9,10}$/.test(d)) parts = [d.slice(0, 3), d.slice(3, d.length - 4), d.slice(-4)];
+    return parts ? parts.join('-') : src;
+  }
+  // 윙: '청계천로10 (마장동) 나길 12-5' → '청계천로10나길 12-5 (마장동)'
+  function repairRoad(raw) {
+    return String(raw == null ? '' : raw).replace(/([가-힣A-Za-z0-9·]+(?:로|길)\s?\d+)\s*(\([^()]*\))\s*(번?[가-힣]?길)\s*(\d+(?:-\d+)?)(?![\d가-힣])/g, (m0, a, ref, frag, no) => a.replace(/\s+/g, '') + frag + ' ' + no + ' ' + ref);
+  }
+  function splitAddress(raw) {
+    let s = repairRoad(clean(String(raw || '').replace(/\s*\n\s*/g, ' ')));
+    let zip = '';
+    const z = s.match(/^\s*[\[(]?\s*(\d{5})\s*[\])]?\s*/);
+    if (z) { zip = z[1]; s = s.slice(z[0].length); }
+    else {
+      const z2 = s.match(/[\[(]\s*(\d{5})\s*[\])]/);
+      if (z2) { zip = z2[1]; s = (s.slice(0, z2.index) + ' ' + s.slice(z2.index + z2[0].length)).trim(); }
+    }
+    s = s.replace(/^(도로명|지번)\s*[:：]?\s*/, '');
+    let m = s.match(/^(.*?(?:로|길)\s?\d+(?:-\d+)?(?![\d가-힣])(?:\s*\([^)]*\))?)[,\s]*(.*)$/);
+    if (!m || !/(시|도|군|구)\s/.test(m[1])) m = s.match(/^(.*?(?:동|리|가)\s?(?:산\s?)?\d+(?:-\d+)?)(?:\s*번지)?(?![\d-])[,\s]*(.*)$/);
+    if (m && m[1].length >= 6) {
+      let a1 = clean(m[1]), a2 = clean(m[2]);
+      const ref = a2.match(/\s*(\([^()]*(동|리|가|읍|면|로|길)[^()]*\))\s*$/);
+      if (ref && !/\)$/.test(a1)) { a1 = a1 + ' ' + ref[1]; a2 = clean(a2.slice(0, ref.index)); }
+      a2 = a2.replace(/^[,\s]+/, '');
+      return { zip, addr1: a1, addr2: a2 };
+    }
+    return { zip, addr1: s, addr2: '' };
+  }
+  function parseProduct(s) {
+    let qty = '';
+    s = clean(s);
+    const q = s.match(/[,\s]\s*(\d{1,4})\s*개\s*$/);
+    if (q) { qty = q[1]; s = clean(s.slice(0, q.index)); }
+    return { product: s, qty };
+  }
+
+  function parseOrder(text) {
+    const lines = String(text || '').replace(/\r/g, '').replace(/\u00a0|\u200b|\ufeff/g, ' ').split('\n').map((l) => l.replace(/ +/g, ' ').replace(/ *\t */g, '\t').trim()).filter(Boolean);
+    const raw = {}, score = {}, at = {};
+    const put = (k, v, s, i) => { v = clean(v); if (v && !badValue(v) && (!(k in score) || s > score[k])) { raw[k] = v; score[k] = s; at[k] = i; } };
+    // 주문자(보내는 분) 칸 표시
+    const buyer = lines.map(() => false);
+    let inBuyer = false;
+    lines.forEach((l, i) => {
+      const lm = labelMatch(l.split(/[:：\t]/)[0]);
+      if (RECV_HEAD.test(l) || /^(수취인|받는\s*(분|사람|이)|수령인|수령자)/.test(l)) inBuyer = false;
+      else if (BUYER_HEAD.test(l)) inBuyer = true;
+      else if (inBuyer && lm && /^(addr|addr2|memo|product|option|orderNo|customs|qty|zip)$/.test(lm.key)) inBuyer = false;
+      buyer[i] = inBuyer;
+    });
+    const used = new Set();
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i];
+      if (buyer[i] && !BUYER_HEAD.test(line)) continue;
+      const cells = line.split(/\t|\s{2,}|\s*\|\s*/).map(clean).filter(Boolean);
+      if (cells.length >= 2) {
+        let hit = false;
+        for (let j = 0; j < cells.length - 1; j++) {
+          const m = labelMatch(cells[j].replace(/[:：]$/, ''));
+          if (m && !labelMatch(cells[j + 1])) { put(m.key, cells[j + 1].replace(/^[:：]\s*/, ''), LABELS[m.key].score(m.t), i); j++; hit = true; }
+        }
+        if (hit) { used.add(i); continue; }
+      }
+      const kv = line.match(/^([^:：]{1,20})[:：]\s*(.*)$/);
+      if (kv) {
+        const m = labelMatch(kv[1]);
+        if (m && !EXCLUDE_CTX.test(compact(kv[1]))) {
+          let v = kv[2], idx = i;
+          if (!v && lines[i + 1] && !labelMatch(lines[i + 1])) { v = lines[++i]; idx = i; used.add(i); }
+          used.add(idx); put(m.key, v, LABELS[m.key].score(m.t) + 1, idx);
+          continue;
+        }
+      }
+      const m = labelMatch(line);
+      if (m && !EXCLUDE_CTX.test(compact(line))) {
+        used.add(i);
+        if (lines[i + 1] && !labelMatch(lines[i + 1]) && !BUYER_HEAD.test(lines[i + 1])) { put(m.key, lines[i + 1], LABELS[m.key].score(m.t), i + 1); used.add(i + 1); i++; }
+        continue;
+      }
+      if (!m && cells.length < 2) {
+        const w = line.split(' ');
+        for (let n = Math.min(3, w.length - 1); n >= 1; n--) {
+          const lab = w.slice(0, n).join(' ');
+          const lm = labelMatch(lab);
+          if (lm && !EXCLUDE_CTX.test(compact(lab))) { put(lm.key, w.slice(n).join(' '), LABELS[lm.key].score(lm.t) - 0.5, i); used.add(i); break; }
+        }
+      }
+    }
+    // 주소 다음 줄이 '101동 701호' 처럼 상세주소만 있으면 붙임
+    if (raw.addr && !raw.addr2 && at.addr != null) {
+      const nx = lines[at.addr + 1];
+      if (nx && !labelMatch(nx) && !used.has(at.addr + 1) && UNIT_LINE.test(nx) && !PHONE_RE.test(nx) && nx.length <= 40) { raw.addr = raw.addr + ' ' + nx; used.add(at.addr + 1); }
+    }
+    // 라벨 없는 글 보완 (주문자 칸 제외)
+    const okLines = lines.map((l, i) => (buyer[i] ? '' : l));
+    if (!raw.phone) {
+      for (const l of okLines) { const p = l.match(PHONE_RE); if (p && !/주문번호|고객센터|사업자|송장|운송장/.test(l)) { raw.phone = p[1]; break; } }
+    }
+    if (!raw.customs) { const c = okLines.join('\n').match(/\bP\d{12}\b/i); if (c) raw.customs = c[0]; }
+    if (!raw.addr) {
+      const ai = okLines.findIndex((l) => ADDR_LINE.test(l) && /\d/.test(l));
+      if (ai >= 0) {
+        let a = okLines[ai].replace(/^.*?(?=[\[(]?\d{5}[\])]?\s*[가-힣])|^[^가-힣\[(\d]*/, '');
+        const ph = a.match(PHONE_RE); if (ph) a = a.replace(ph[1], ' ');
+        const nx = okLines[ai + 1];
+        if (nx && !labelMatch(nx) && UNIT_LINE.test(nx) && !PHONE_RE.test(nx) && nx.length <= 40) a += ' ' + nx;
+        raw.addr = clean(a); at.addr = ai;
+      }
+    }
+    if (!raw.zip) {
+      const all = okLines.join('\n');
+      const z = all.match(/우편\s*번호\D{0,5}(\d{5})(?!\d)/) || all.match(/[\[(](\d{5})[\])]/);
+      if (z) raw.zip = z[1];
+    }
+    if (!raw.name) {
+      // 이름만 있는 줄 (한글 2~5자), 전화·주소 줄 가까이
+      const near = [];
+      okLines.forEach((l, i) => { if (l && (PHONE_RE.test(l) || ADDR_LINE.test(l))) near.push(i); });
+      for (let i = 0; i < okLines.length; i++) {
+        let l = okLines[i]; if (!l) continue;
+        const ph = l.match(PHONE_RE);
+        if (ph) l = clean(l.replace(ph[1], '').replace(/[\/|,()]+/g, ' '));
+        if (/^[가-힣]{2,5}(\s?[가-힣]{1,3})?$/.test(l) && !labelMatch(l) && !isHeaderish(l) && !/(님|고객|주문|배송|상품|택배|안내|확인|완료|정보|요청|부탁|감사|쿠팡)/.test(l) && near.some((n) => Math.abs(n - i) <= 2)) { raw.name = l; break; }
+      }
+    }
+    if (!raw.orderNo) { const o = okLines.join('\n').match(/주문\s*번호\D{0,5}(\d{8,})/); if (o) raw.orderNo = o[1]; }
+    return finalize(raw);
+  }
+
+  function finalize(raw) {
+    const d = { name: '', phone: '', zip: '', addr1: '', addr2: '', memo: '', product: '', option: '', qty: '', orderNo: '', customs: '' };
+    for (const k in raw) if (k !== 'addr') d[k] = raw[k];
+    if (raw.addr) {
+      const sp = splitAddress(raw.addr);
+      if (!d.zip) d.zip = sp.zip;
+      if (raw.addr2) { const a = clean(repairRoad(raw.addr).replace(/^\s*[\[(]?\d{5}[\])]?\s*/, '')), a2 = clean(raw.addr2); d.addr1 = clean(a.includes(a2) ? a.replace(a2, ' ') : a); }
+      else { d.addr1 = sp.addr1; d.addr2 = sp.addr2; }
+    }
+    if (d.phone) d.phone = normalizePhone(d.phone);
+    if (d.zip) { const z = String(d.zip).match(/\d{5}/); d.zip = z ? z[0] : ''; }
+    if (d.product) { const p = parseProduct(d.product); d.product = p.product; if (!d.qty && p.qty) d.qty = p.qty; }
+    if (d.qty) { const q = String(d.qty).match(/\d+/); d.qty = q ? q[0] : ''; }
+    if (d.orderNo) { const o = String(d.orderNo).replace(/\s/g, '').match(/\d{6,}/); d.orderNo = o ? o[0] : ''; }
+    if (d.customs) { const c = String(d.customs).toUpperCase().match(/P\d{12}/); d.customs = c ? c[0] : ''; }
+    if (d.memo && /^(없음|-|선택안함|요청사항없음)$/.test(compact(d.memo))) d.memo = '';
+    if (d.name) d.name = clean(d.name.replace(/\(?\s*안심번호\s*\)?|님$/g, '').replace(PHONE_RE, ' ').replace(/[\/|,·\-]+\s*$/, ''));
+    for (const k of Object.keys(d)) { d[k] = clean(d[k]); if (d[k] && k !== 'memo' && badValue(d[k])) d[k] = ''; }
+    if (d.qty && !/^\d{1,4}$/.test(d.qty)) d.qty = '';
+    const pd = d.phone.replace(/\D/g, '');
+    if (d.phone && (pd.length < 9 || pd.length > 12 || !/^0/.test(pd))) d.phone = '';
+    if (d.name && (d.name.length > 30 || /\d{3,}/.test(d.name))) d.name = '';
+    if (d.addr1 && !/[가-힣]{2,}/.test(d.addr1)) d.addr1 = '';
+    d.masked = /\*/.test(d.name) || /\*{2,}/.test(d.phone) || /\*{2,}/.test(d.addr2);
+    d.safeNo = /^050\d/.test(pd);
+    d.search = clean(d.addr1.replace(/\([^)]*\)/g, ' '));
+    d.found = ['name', 'phone', 'addr1'].filter((k) => d[k]).length;
+    return d;
+  }
+
+  function orderAllText(d) {
+    const rows = [['받는 분', d.name], ['연락처', d.phone], ['우편번호', d.zip], ['주소', d.addr1], ['상세주소', d.addr2], ['배송메모', d.memo], ['개인통관고유부호', d.customs]];
+    return rows.filter((r) => r[1]).map((r) => r[0] + ': ' + r[1]).join('\n');
+  }
+
+  // 상세주소의 동·호 숫자
+  function unitsOf(addr2) {
+    const s = clean(addr2);
+    let m = s.match(/제?\s*(\d{1,4})\s*동\s*제?\s*(\d{1,5})\s*(?:호|$|\s)/);
+    if (m) return { dong: m[1], ho: m[2] };
+    m = s.match(/(?:^|\s)(\d{1,4})\s*-\s*(\d{2,5})\s*(?:호)?(?:\s|$)/);
+    if (m) return { dong: m[1], ho: m[2] };
+    m = s.match(/([A-Za-z가-힣])\s*동\s*(\d{1,5})\s*호/);
+    if (m) return { dong: m[1].toUpperCase(), ho: m[2] };
+    m = s.match(/(\d{1,5})\s*호/);
+    if (m) return { dong: '', ho: m[1] };
+    return null;
+  }
+
+  // ---------------- 송장 ----------------
+  const CARRIERS = [
+    ['CU편의점택배', /cu\s*편의점|cu\s*post|cupost/i],
+    ['GS편의점택배', /gs\s*(편의점|postbox|25\s*편의점|네트웍스)|cvsnet|gs\s*postbox|편의점\s*택배/i],
+    ['CJ대한통운', /cj\s*대한\s*통운|cj\s*택배|cj\s*logistics|대한\s*통운|씨제이\s*대한|cj\s*오네|korex/i],
+    ['롯데택배', /롯데\s*택배|롯데\s*글로벌\s*로지스|롯데\s*로지스|현대\s*택배|^\s*\[?\s*롯데\s*\]?\s*$|\[\s*롯데\s*\]/i],
+    ['한진택배', /한진\s*택배|한진\s*$|\[\s*한진\s*\]|^한진|hanjin/i],
+    ['우체국택배', /우체국\s*(택배|소포|등기)?(?!\s*쇼핑)|우정\s*사업|epost|e-post|korea\s*post/i],
+    ['로젠택배', /로젠|logen|kgb택배/i],
+    ['경동택배', /경동\s*(택배|화물|합동|로지스)/i],
+    ['대신택배', /대신\s*(택배|화물)/i],
+    ['일양로지스', /일양\s*(로지스|택배)/i],
+    ['합동택배', /합동\s*(택배|화물)/i],
+    ['천일택배', /천일\s*(택배|화물)/i],
+    ['건영택배', /건영\s*(택배|화물)/i],
+    ['한덱스', /한덱스|handex/i]
+  ];
+  // 쇼핑몰/상품 이름이 택배사로 읽히지 않게 지움
+  const NOT_CARRIER = /cj\s*온\s*스타일|cj\s*onstyle|cj\s*더\s*마켓|cj\s*제일\s*제당|cj\s*몰|롯데\s*on|롯데\s*온|롯데\s*마트|롯데\s*백화점|롯데\s*홈\s*쇼핑|롯데\s*몰|롯데\s*칠성|롯데\s*웰푸드|롯데\s*제과|우체국\s*쇼핑|한진\s*관광/gi;
+  function canonCarrier(s) {
+    s = clean(String(s || '').replace(NOT_CARRIER, ' '));
+    if (!s) return '';
+    for (const [name, re] of CARRIERS) if (re.test(s)) return name;
+    return '';
+  }
+  // 윙 '택배사' 목록 이름 (주문 도우미 v3.4.7, 대표님 윙 목록 사진 기준). 확인 안 된 곳은 빈칸 → 직접 고르기
+  const WING_NAME = { 'CJ대한통운': 'CJ 대한통운', '롯데택배': '롯데택배', '한진택배': '한진택배', '우체국택배': '우체국', '로젠택배': '로젠택배', '경동택배': '경동택배', '대신택배': '대신택배', '일양로지스': '일양택배', '합동택배': '합동택배', 'GS편의점택배': 'CVS택배' };
+  // 택배사별 송장 자릿수 (주문 도우미와 같은 값)
+  const CAR_LEN = { 'CJ대한통운': [10, 12], '한진택배': [10, 12], '롯데택배': [10, 13], '우체국택배': [13, 13], '로젠택배': [10, 11], '경동택배': [9, 14], '대신택배': [9, 14], '일양로지스': [9, 12], '합동택배': [9, 14] };
+  const phoneLike = (d) => /^(01[016789]\d{7,8}|050\d{8,9}|0[2-6]\d{7,9}|070\d{7,8}|080\d{7}|1[5-9]\d{6})$/.test(d);
+  function lenOk(carrier, d) { const r = CAR_LEN[carrier] || [9, 14]; return d.length >= r[0] && d.length <= r[1]; }
+  // 날짜·시간·금액은 숫자 후보에서 뺌
+  function stripNoise(t) {
+    return String(t || '')
+      .replace(/(?:20)?\d{2}\s*[.\-/년]\s*\d{1,2}\s*[.\-/월]\s*\d{1,2}\s*일?(?:\s*\(?\s*[월화수목금토일]\s*\)?)?(?:\s*\d{1,2}\s*[:시]\s*\d{2}(?:\s*[:분]\s*\d{2})?\s*초?)?/g, ' ⟂ ')
+      .replace(/\d{1,2}\s*:\s*\d{2}(?:\s*:\s*\d{2})?/g, ' ⟂ ')
+      .replace(/\d[\d,]*\s*원/g, ' ⟂ ');
+  }
+  function numCands(s) {
+    const out = [];
+    for (const m of String(s).matchAll(/\d[\d \-]*\d/g)) {
+      const whole = m[0].replace(/\D/g, '');
+      if (whole.length >= 9 && whole.length <= 15) { out.push(whole); continue; }
+      for (const piece of m[0].split(/\s+/)) { const d = piece.replace(/\D/g, ''); if (d.length >= 9 && d.length <= 15) out.push(d); }
+    }
+    return out;
+  }
+  const PRESHIP = /결제\s*완료|입금\s*(?:대기|확인)|상품\s*준비\s*중|배송\s*준비\s*중|주문\s*접수|발주\s*확인|출고\s*(?:준비|예정)/;
+  const SHIPPED = /배송\s*중|발송\s*완료|배송\s*완료|출고\s*완료|배송\s*출발|구매\s*확정|집화|배달\s*(?:중|완료|출발|예정)|간선|이동\s*중|터미널|배송\s*조회|배송\s*추적|운송장|송장|배송\s*시작|발송\s*(?:되었|했)/;
+  const BAD_CTX = /반품|회수|교환|취소/;
+  function forbidden(text) {
+    const set = new Set();
+    const add = (x) => { const d = String(x || '').replace(/\D/g, ''); if (d.length >= 6) set.add(d); };
+    for (const m of text.matchAll(/(?:주문|체결|구매|결제|장바구니|묶음\s*배송|상품|등록\s*상품|승인|거래)\s*(?:번호|ID|No\.?)\s*[|:：)\]]?\s*([\d\-\s]{6,24}\d)/gi)) add(m[1]);
+    for (const m of text.matchAll(/(?:연락처|전화|휴대폰|휴대전화|핸드폰|고객센터|사업자|기사|대표번호|문의)[^\n\d]{0,12}([\d\-\s]{8,16}\d)/g)) add(m[1]);
+    return set;
+  }
+  function parseTracking(text, order) {
+    const t0 = String(text || '').replace(/\r/g, '').replace(/\u00a0|\u200b|\ufeff/g, ' ');
+    const t = stripNoise(t0);
+    const lines = t.split('\n').map(clean);
+    const out = { carrier: '', wing: '', invoice: '', others: [], state: '', why: '', check: null };
+    // 택배사
+    const RE_CAR = /(?:택배\s*(?:사|회사|업체)|배송\s*(?:업체|회사|사)|운송\s*(?:업체|사))(?:\s*명)?\s*[:：]?\s*([^\n\t/|,]{2,30})/g;
+    for (const m of t.matchAll(RE_CAR)) { const c = canonCarrier(m[1]); if (c) { out.carrier = c; break; } }
+    if (!out.carrier) {
+      const found = []; lines.forEach((l) => { const c = canonCarrier(l); if (c && !found.includes(c)) found.push(c); });
+      if (found.length === 1) out.carrier = found[0];
+      else if (found.length > 1) out.carrierMany = found;
+    }
+    // 송장번호: 라벨 → 택배사 이름 옆 → (확인용) 하나뿐인 긴 숫자
+    const cands = [];
+    const RE_INV = /(?:운\s*송\s*장|송\s*장|등\s*기|화\s*물|운송\s*번호|배송\s*번호)\s*(?:번\s*호|조회)?\s*[:：)\]]?\s*(?:\n\s*)?(\d[\d \-]{7,24}\d)/g;
+    const lineAt = (idx) => t.slice(t.lastIndexOf('\n', idx - 1) + 1, idx);
+    for (const m of t.matchAll(RE_INV)) {
+      if (BAD_CTX.test(lineAt(m.index))) continue;
+      numCands(m[1]).slice(0, 1).forEach((d) => { if (!cands.includes(d)) cands.push(d); });
+    }
+    let how = cands.length ? 'label' : '';
+    if (!cands.length) {
+      for (let i = 0; i < lines.length; i++) {
+        const c = canonCarrier(lines[i]); if (!c) continue;
+        if (BAD_CTX.test(lines[i])) continue;
+        const near = numCands(lines[i]).concat(numCands(lines[i + 1] || '')).filter((d) => !phoneLike(d));
+        near.forEach((d) => { if (!cands.includes(d)) cands.push(d); });
+        if (cands.length) { how = 'carrier'; if (!out.carrier) out.carrier = c; break; }
+      }
+    }
+    const bad = forbidden(t0.replace(/\r/g, ''));
+    if (order) { [order.phone, order.orderNo, order.zip].forEach((x) => { const d = String(x || '').replace(/\D/g, ''); if (d.length >= 6) bad.add(d); }); }
+    const keep = (d) => !bad.has(d) && !phoneLike(d) && (!out.carrier || lenOk(out.carrier, d));
+    let good = cands.filter(keep);
+    out.dropped = cands.filter((d) => !good.includes(d));
+    let guessed = false;
+    if (!good.length) {
+      const rest = [];
+      lines.forEach((l) => {
+        if (/주문|체결|구매|결제|연락처|전화|휴대|고객센터|사업자|통관|우편|기사|문의|대표/.test(l)) return;
+        numCands(l).forEach((d) => { if (keep(d) && d.length >= 10 && !rest.includes(d)) rest.push(d); });
+      });
+      if (rest.length === 1 && out.carrier) { good = rest; guessed = true; }
+    }
+    const pre = PRESHIP.test(t), shipped = SHIPPED.test(t);
+    out.state = pre && !shipped ? 'pre' : shipped ? 'shipped' : '';
+    if (out.state === 'pre' && !good.length) out.why = 'pre';
+    out.invoice = good[0] || '';
+    out.others = good.slice(1);
+    out.guessed = guessed;
+    out.wing = out.carrier ? (WING_NAME[out.carrier] || '') : '';
+    if (!out.invoice) out.why = out.why || (out.dropped.length ? 'dropped' : 'none');
+    if (order && (order.name || order.addr2)) out.check = compare(order, t0);
+    return out;
+  }
+
+  // 주문(받는 분·동호수) vs 송장 화면 글자
+  function nameIn(name, text) {
+    const n = clean(name).replace(/\s/g, ''); if (!n) return null;
+    const flat = text.replace(/\s/g, '');
+    if (flat.includes(n)) return 'same';
+    // 가려진 이름 (홍*동, 홍**, 홍길*, 홍○동)
+    const masks = text.match(/[가-힣][*＊○●]{1,3}[가-힣]{0,2}|[가-힣]{2}[*＊○●]{1,2}/g) || [];
+    for (const mk of masks) {
+      const k = mk.replace(/[＊○●]/g, '*');
+      if (k.length !== n.length) continue;
+      let ok = true; for (let i = 0; i < k.length; i++) if (k[i] !== '*' && k[i] !== n[i]) ok = false;
+      if (ok) return 'masked';
+    }
+    const lab = text.match(/(?:받는\s*(?:분|사람|이)|수취인|수령인|수령자|수하인)(?:\s*(?:명|이름|성명))?\s*[:：]?\s*([가-힣*＊]{2,5})(?![가-힣])/);
+    if (lab && !/^(정보|주소|연락처|전화)/.test(lab[1])) return 'diff:' + lab[1];
+    return null;
+  }
+  function unitIn(u, text) {
+    if (!u) return null;
+    const t = String(text).replace(/\s+/g, ' ');
+    const has = (re) => re.test(t);
+    const D = u.dong, H = u.ho, B = '(?:^|[^\\dA-Za-z])';
+    if (D) {
+      if (has(new RegExp(B + '제?\\s?' + D + '\\s?동\\s?제?\\s?' + H + '(?:\\s?호|\\D|$)', 'i')) || has(new RegExp(B + D + '\\s?-\\s?' + H + '(?:\\s?호|\\D|$)'))) return 'same';
+      if (has(new RegExp(B + D + '\\s?동', 'i')) && has(new RegExp('(?:^|\\D)' + H + '\\s?호'))) return 'same';
+    } else if (has(new RegExp('(?:^|\\D)' + H + '\\s?호'))) return 'same';
+    if (/\d[*＊]+\s?(?:동|호)|[*＊]{2,}\s?호|동\s?[*＊]+\s?호?/.test(t)) return 'masked';
+    const other = t.match(/(?:^|[^\d])(\d{1,4})\s?동\s?(\d{1,5})\s?호/) || t.match(/(?:^|[^\d])(\d{1,4})-(\d{2,5})\s?호/);
+    if (other) return 'diff:' + other[1] + '동 ' + other[2] + '호';
+    return null;
+  }
+  function compare(order, text) {
+    return { name: order.name ? nameIn(order.name, text) : null, unit: unitIn(unitsOf(order.addr2), text) };
+  }
+
+  const API = { parseOrder, parseTracking, splitAddress, normalizePhone, canonCarrier, unitsOf, orderAllText, compare, WING_NAME };
+  root.MH = API;
+  if (typeof module !== 'undefined' && module.exports) module.exports = API;
+})(typeof window !== 'undefined' ? window : globalThis);
+
+</script>
+<script>
+(function () {
+  'use strict';
+  const $ = (id) => document.getElementById(id);
+  const KEY = 'mh100', TTL = 60 * 60 * 1000;
+  let order = null, chainIdx = 0, chainList = [], track = null, savedAt = 0;
+  const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
+  // ---------- 복사 ----------
+  function fallbackCopy(v) {
+    const ta = document.createElement('textarea');
+    ta.value = v; ta.setAttribute('readonly', ''); ta.style.position = 'fixed'; ta.style.top = '-1000px'; ta.style.opacity = '0';
+    document.body.appendChild(ta); ta.select(); ta.setSelectionRange(0, v.length);
+    let ok = false; try { ok = document.execCommand('copy'); } catch (e) {}
+    ta.remove(); return ok;
+  }
+  function copy(v, label, btn) {
+    v = String(v || ''); if (!v) return Promise.resolve(false);
+    const done = (ok) => {
+      toast(ok ? '복사했어요: ' + (label || v) : '복사가 안 됐어요. 글자를 길게 눌러 복사해 주세요');
+      if (ok && btn) { btn.classList.add('done'); btn.textContent = '✓ 복사됨'; setTimeout(() => { btn.classList.remove('done'); btn.textContent = btn.dataset.t || '복사'; }, 1600); }
+      return ok;
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText) return navigator.clipboard.writeText(v).then(() => done(true), () => done(fallbackCopy(v)));
+    return Promise.resolve(done(fallbackCopy(v)));
+  }
+  let tt = 0;
+  function toast(s) { const t = $('toast'); t.textContent = s; t.classList.add('on'); clearTimeout(tt); tt = setTimeout(() => t.classList.remove('on'), 1800); }
+
+  // ---------- 붙여넣기 ----------
+  function pasteInto(ta, after) {
+    const fail = () => { ta.focus(); toast("칸을 길게 눌러 '붙여넣기' 해 주세요"); };
+    if (!navigator.clipboard || !navigator.clipboard.readText) return fail();
+    navigator.clipboard.readText().then((s) => { if (!s || !s.trim()) return fail(); ta.value = s; after(true); }, fail);
+  }
+
+  // ---------- 주문 ----------
+  const FIELDS = [['name', '받는 분'], ['phone', '연락처'], ['zip', '우편번호'], ['search', '주소검색'], ['addr1', '주소'], ['addr2', '상세주소'], ['memo', '배송메모'], ['customs', '통관부호']];
+  function renderOrder() {
+    const txt = $('inO').value;
+    if (!txt.trim()) { order = null; $('outO').classList.add('hide'); $('stO').innerHTML = ''; renderTrack(); return; }
+    order = MH.parseOrder(txt);
+    $('inO').classList.toggle('has', !!order.found);
+    const d = order, msg = [];
+    if (!d.found) { msg.push('<span class="bad">⚠️ 받는 분·연락처·주소를 못 찾았어요.</span> 윙 주문 상세 화면에서 받는 분 정보까지 같이 복사해 주세요.'); }
+    else {
+      const miss = [['name', '받는 분'], ['phone', '연락처'], ['addr1', '주소']].filter((x) => !d[x[0]]).map((x) => x[1]);
+      msg.push(miss.length ? '<span class="warn">⚠️ ' + miss.join('·') + '을(를) 못 찾았어요.</span> 그 칸은 직접 확인해 주세요.' : '<span class="ok">✅ 받는 분·연락처·주소를 찾았어요.</span>');
+      if (d.addr1 && !d.addr2) msg.push('<span class="warn">⚠️ 상세주소(동·호수)가 안 보여요.</span> 단독주택이 아니면 확인해 주세요.');
+      if (d.masked) msg.push('<span class="warn">⚠️ 가려진 글자(*)가 있어요.</span> 윙 주문 상세에서 다시 복사해 주세요.');
+    }
+    $('stO').innerHTML = msg.join('<br>');
+    $('outO').classList.toggle('hide', !d.found);
+    let h = '';
+    for (const [k, lab] of FIELDS) {
+      if (k === 'search' && (!d.search || d.search === d.addr1)) continue;
+      if ((k === 'customs' || k === 'zip' || k === 'memo') && !d[k]) continue;
+      const v = d[k];
+      h += '<div class="row"><div class="k">' + lab + '</div><div class="v' + (v ? '' : ' empty') + (k === 'phone' || k === 'zip' ? ' nw' : '') + '">' + (v ? esc(v) : '없음') + '</div>' +
+        (v ? '<button class="btn" type="button" data-k="' + k + '" data-t="복사">복사</button>' : '') +
+        (k === 'phone' && v ? '<button class="btn sub" type="button" data-k="phoneDigits" data-t="숫자만">숫자만</button>' : '') + '</div>';
+    }
+    $('rowsO').innerHTML = h;
+    let p = '';
+    [['product', '상품'], ['option', '옵션'], ['qty', '수량'], ['orderNo', '주문번호']].forEach(([k, lab]) => {
+      if (!d[k]) return;
+      const v = k === 'qty' ? d[k] + '개' : d[k];
+      p += '<div class="row"><div class="k">' + lab + '</div><div class="v" style="font-size:17px">' + esc(v) + '</div><button class="btn sub" type="button" data-k="' + k + '" data-t="복사">복사</button></div>';
+    });
+    $('rowsP').innerHTML = p; $('rowsP').classList.toggle('hide', !p);
+    chainList = [['name', '받는 분'], ['phone', '연락처'], [d.search ? 'search' : 'addr1', '주소 검색어'], ['addr2', '상세주소'], ['memo', '배송메모']].filter((x) => d[x[0]]);
+    chainIdx = 0; renderChain();
+    renderTrack();
+  }
+  function valOf(k) { if (!order) return ''; if (k === 'phoneDigits') return order.phone.replace(/\D/g, ''); return order[k] || ''; }
+  function renderChain() {
+    const b = $('chain');
+    if (!chainList.length) { b.classList.add('hide'); return; }
+    b.classList.remove('hide');
+    if (chainIdx >= chainList.length) { b.innerHTML = '✓ 다 복사했어요<small>누르면 처음(받는 분)부터 다시</small>'; return; }
+    const cur = chainList[chainIdx], nx = chainList[chainIdx + 1];
+    b.innerHTML = (chainIdx + 1) + '/' + chainList.length + ' ' + cur[1] + ' 복사<small>' + esc(valOf(cur[0])).slice(0, 40) + (nx ? ' · 다음: ' + nx[1] : '') + '</small>';
+  }
+  $('chain').addEventListener('click', () => {
+    if (chainIdx >= chainList.length) { chainIdx = 0; renderChain(); return; }
+    const cur = chainList[chainIdx];
+    copy(valOf(cur[0]), cur[1]).then((ok) => { if (ok) { chainIdx++; renderChain(); } });
+  });
+  $('rowsO').addEventListener('click', onRowCopy); $('rowsP').addEventListener('click', onRowCopy);
+  function onRowCopy(e) {
+    const b = e.target.closest('button[data-k]'); if (!b) return;
+    const k = b.dataset.k; const lab = (FIELDS.find((f) => f[0] === k) || [0, k === 'phoneDigits' ? '연락처 숫자' : ''])[1];
+    copy(valOf(k), lab || valOf(k), b);
+    const ci = chainList.findIndex((x) => x[0] === k); if (ci >= 0 && ci === chainIdx) { chainIdx++; renderChain(); }
+  }
+  $('allBtn').addEventListener('click', (e) => copy(MH.orderAllText(order), '받는 분·연락처·주소 전체'));
+
+  // ---------- 송장 ----------
+  const fmtInv = (d) => d.replace(/(\d{4})(?=\d)/g, '$1 ');
+  function renderTrack(autoCopy) {
+    const txt = $('inT').value;
+    if (!txt.trim()) { track = null; $('outT').classList.add('hide'); $('stT').innerHTML = ''; return; }
+    const r = track = MH.parseTracking(txt, order);
+    $('inT').classList.toggle('has', !!r.invoice);
+    $('outT').classList.remove('hide');
+    let h = '', st = '';
+    if (r.invoice) {
+      st = r.guessed ? '<span class="warn">⚠️ 이름표가 없는 숫자예요. 송장번호가 맞는지 한 번 봐 주세요.</span>' : '<span class="ok">✅ 송장번호를 찾았어요.</span>';
+      h += '<div class="inv" id="invNo">' + esc(fmtInv(r.invoice)) + '</div>';
+      h += '<div class="wing">' + (r.wing ? '윙에서 고를 택배사: <b id="wingName">' + esc(r.wing) + '</b>' : r.carrier ? '택배사: <b>' + esc(r.carrier) + '</b><br>윙 목록 이름은 확실하지 않아요. 윙에서 직접 골라 주세요.' : '<span style="color:var(--amber);font-weight:700">⚠️ 택배사를 못 찾았어요.</span> 윙에서 직접 골라 주세요.') + '</div>';
+      h += '<button class="copyinv" id="copyInv" type="button">송장번호 복사</button>';
+      if (r.others.length) {
+        h += '<div class="hint"><span style="color:var(--amber);font-weight:700">⚠️ 송장 같은 숫자가 더 있어요.</span> 주문이 여러 개면 맞는 걸 골라 주세요.</div>';
+        r.others.forEach((o) => { h += '<div class="other"><span>' + esc(fmtInv(o)) + '</span><button class="btn" type="button" data-inv="' + esc(o) + '" data-t="복사">복사</button></div>'; });
+      }
+    } else {
+      st = r.why === 'pre' ? '<span class="warn">⚠️ 아직 배송 전 화면 같아요 (결제완료·상품준비중).</span> 송장이 나온 뒤 다시 붙여넣어 주세요.'
+        : r.why === 'dropped' ? '<span class="bad">⚠️ 송장번호로 보기 어려운 숫자만 있어요.</span> (주문번호·전화번호·자릿수가 안 맞는 숫자는 뺐어요)'
+        : '<span class="bad">⚠️ 송장번호를 못 찾았어요.</span> 배송조회 화면에서 택배사와 송장번호가 보이게 복사해 주세요.';
+      if (r.carrier) h += '<div class="wing">택배사: <b>' + esc(r.wing || r.carrier) + '</b></div>';
+    }
+    $('stT').innerHTML = st;
+    $('invCard').innerHTML = h; $('invCard').classList.toggle('hide', !h);
+    // 주문과 비교
+    let c = '';
+    if (r.check && r.invoice) {
+      const n = r.check.name, u = r.check.unit;
+      if (order.name) c += '<div class="hint">' + (n === 'same' ? '✅ 받는 분 이름이 같아요 (' + esc(order.name) + ')' : n === 'masked' ? '✅ 가려진 이름이 ' + esc(order.name) + '님과 맞아요' : n && n.indexOf('diff:') === 0 ? '⚠️ 다른 이름이 보여요: ' + esc(n.slice(5)) + ' (주문: ' + esc(order.name) + ')' : 'ℹ️ 붙여넣은 글에 받는 분 이름이 안 보여요') + '</div>';
+      if (MH.unitsOf(order.addr2)) c += '<div class="hint">' + (u === 'same' ? '✅ 동·호수가 같아요 (' + esc(order.addr2) + ')' : u === 'masked' ? 'ℹ️ 동·호수가 가려져 있어서 비교 못 했어요' : u && u.indexOf('diff:') === 0 ? '⚠️ 다른 동·호수가 보여요: ' + esc(u.slice(5)) + ' (주문: ' + esc(order.addr2) + ')' : 'ℹ️ 붙여넣은 글에 동·호수가 안 보여요') + '</div>';
+    }
+    $('chkCard').innerHTML = c; $('chkCard').classList.toggle('hide', !c);
+    const diff = r.check && [r.check.name, r.check.unit].some((x) => x && String(x).indexOf('diff:') === 0);
+    if (autoCopy && r.invoice && !r.others.length && !r.guessed && !diff) copy(r.invoice, '송장번호 ' + r.invoice).then((ok) => { const b = $('copyInv'); if (ok && b) { b.classList.add('done'); b.textContent = '✓ 복사됨 · 윙 송장칸에 붙여넣으세요'; } });
+  }
+  $('invCard').addEventListener('click', (e) => {
+    const b = e.target.closest('button'); if (!b || !track) return;
+    if (b.id === 'copyInv') copy(track.invoice, '송장번호 ' + track.invoice, null).then((ok) => { if (ok) { b.classList.add('done'); b.textContent = '✓ 복사됨'; } });
+    else if (b.dataset.inv) copy(b.dataset.inv, '송장번호 ' + b.dataset.inv, b);
+  });
+
+  // ---------- 보관 (이 탭에서만, 1시간) ----------
+  function save() {
+    try {
+      const o = $('inO').value, k = $('inT').value;
+      if (!o && !k) { sessionStorage.removeItem(KEY); savedAt = 0; return; }
+      if (!savedAt) savedAt = Date.now();
+      sessionStorage.setItem(KEY, JSON.stringify({ t: savedAt, o, k }));
+    } catch (e) {}
+  }
+  function wipe(msg) {
+    $('inO').value = ''; $('inT').value = ''; order = null; track = null; savedAt = 0;
+    try { sessionStorage.removeItem(KEY); } catch (e) {}
+    renderOrder(); renderTrack();
+    if (msg) toast(msg);
+  }
+  function restore() {
+    try {
+      const s = JSON.parse(sessionStorage.getItem(KEY) || 'null');
+      if (!s) return;
+      if (!s.t || Date.now() - s.t > TTL) { sessionStorage.removeItem(KEY); return; }
+      savedAt = s.t; $('inO').value = s.o || ''; $('inT').value = s.k || '';
+    } catch (e) {}
+  }
+  setInterval(() => { if (savedAt && Date.now() - savedAt > TTL) wipe('1시간이 지나서 고객 정보를 지웠어요'); }, 30 * 1000);
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && savedAt && Date.now() - savedAt > TTL) wipe('1시간이 지나서 고객 정보를 지웠어요'); });
+
+  // ---------- 연결 ----------
+  function showTab(t) {
+    $('tabO').classList.toggle('on', t === 'O'); $('tabT').classList.toggle('on', t === 'T');
+    $('pO').classList.toggle('on', t === 'O'); $('pT').classList.toggle('on', t === 'T');
+    window.scrollTo(0, 0);
+  }
+  $('tabO').addEventListener('click', () => showTab('O'));
+  $('tabT').addEventListener('click', () => showTab('T'));
+  $('pasteO').addEventListener('click', () => pasteInto($('inO'), () => { savedAt = Date.now(); renderOrder(); save(); }));
+  $('pasteT').addEventListener('click', () => pasteInto($('inT'), () => { renderTrack(true); save(); }));
+  let to1 = 0, to2 = 0;
+  $('inO').addEventListener('input', () => { clearTimeout(to1); to1 = setTimeout(() => { renderOrder(); save(); }, 250); });
+  $('inT').addEventListener('input', (e) => { clearTimeout(to2); const ac = e.inputType === 'insertFromPaste'; to2 = setTimeout(() => { renderTrack(ac); save(); }, 250); });
+  $('clearBtn').addEventListener('click', () => wipe('다 지웠어요'));
+  restore(); renderOrder(); renderTrack();
+  window.__mh = { showTab, renderOrder, renderTrack, wipe, state: () => ({ order, track, savedAt }) };
+})();
+</script>
+</body>
+</html>
