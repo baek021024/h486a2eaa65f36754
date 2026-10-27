@@ -56,7 +56,37 @@
   .toast { position:fixed; left:50%; bottom:22px; transform:translateX(-50%); background:#1b1f24; color:#fff; padding:13px 18px; border-radius:24px; font-size:16px; font-weight:700; opacity:0; transition:opacity .2s; pointer-events:none; max-width:90vw; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; z-index:10; }
   .toast.on { opacity:.95; }
   .hide { display:none !important; }
+  .mine { background:#fff; border:1px solid var(--line); border-radius:14px; padding:10px 12px; margin-bottom:10px; font-size:16px; }
+  .mine.need { border:2px solid var(--red); background:#fff5f5; }
+  .mine .line { display:flex; align-items:center; gap:8px; }
+  .mine .line span { flex:1; font-weight:700; }
+  .mine input { flex:1; min-width:0; font-size:18px; padding:10px; border:1px solid var(--line); border-radius:10px; font-family:inherit; }
+  .mine .msg { font-size:14px; margin-top:6px; color:#57606a; } .mine .msg.bad { color:var(--red); font-weight:700; }
+  .note { font-size:14px; color:#57606a; padding:2px 2px 10px; }
+  .chain.wait { background:var(--red); }
   .other { display:flex; align-items:center; gap:10px; padding:8px 0; } .other span { flex:1; font-size:19px; font-weight:700; }
+  .pager { display:flex; align-items:center; gap:8px; margin-top:12px; position:sticky; top:104px; z-index:4; background:var(--bg); padding:6px 0; }
+  .pager button { border:0; border-radius:12px; background:#fff; border:1px solid var(--line); font-size:20px; font-weight:800; padding:10px 0; }
+  .pager .nav { width:58px; color:var(--blue); } .pager .nav:disabled { color:#c4c9d0; }
+  .pager .pno { flex:1; font-size:19px; color:#1b1f24; }
+  .pager .lst { padding:10px 12px; font-size:16px; color:#424a53; }
+  .ohead { display:flex; align-items:center; gap:8px; margin-top:6px; }
+  .ohead .tt { flex:1; font-size:16px; font-weight:700; color:#424a53; line-height:1.35; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .donebtn { flex:none; border:2px solid var(--green); background:#fff; color:var(--green); border-radius:12px; font-size:17px; font-weight:800; padding:10px 12px; }
+  .donebtn.on { background:var(--green); color:#fff; }
+  .restart { width:100%; margin-top:6px; border:0; background:none; color:#57606a; font-size:15px; font-weight:700; padding:8px; }
+  .del { width:100%; margin-top:14px; border:1px solid #f0b4b4; background:#fff5f5; color:var(--red); border-radius:14px; font-size:16px; font-weight:800; padding:12px; }
+  .lhead { display:flex; align-items:center; gap:8px; margin:12px 2px 4px; font-size:16px; font-weight:700; }
+  .lhead span { flex:1; }
+  .li { display:flex; align-items:center; gap:10px; width:100%; text-align:left; border:0; border-bottom:1px solid #eef1f5; background:none; padding:12px 2px; font-family:inherit; color:#1b1f24; }
+  .li:last-child { border-bottom:0; }
+  .li .n { width:34px; flex:none; font-size:15px; color:#6e7781; font-weight:700; text-align:right; }
+  .li .m { width:24px; flex:none; font-size:18px; }
+  .li .x { flex:1; min-width:0; font-size:17px; font-weight:700; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .li .x small { font-weight:500; color:#57606a; font-size:15px; margin-left:6px; }
+  .li.cur { background:#e7f0ff; border-radius:10px; }
+  .li.fin .x { color:#8c959f; }
+  .match { font-size:16px; padding:10px 0; border-bottom:1px solid #eef1f5; line-height:1.45; }
 </style>
 </head>
 <body>
@@ -66,26 +96,56 @@
 </header>
 <main>
   <section class="panel on" id="pO">
+    <div class="mine" id="mine">
+      <div class="line" id="mineShow"><span id="mineTxt"></span><button class="btn sub" id="mineEdit" type="button">바꾸기</button><button class="btn sub" id="mineDel" type="button">지우기</button></div>
+      <div id="mineForm"><div style="font-weight:700;margin-bottom:6px" id="mineAsk">📞 내 번호 (구매처 연락처 칸에 넣을 대표님 번호)</div>
+        <div class="line"><input id="mineIn" type="tel" inputmode="numeric" autocomplete="tel" placeholder="예) 010-1234-5678"><button class="btn" id="mineSave" type="button">저장</button></div></div>
+      <div class="msg" id="mineMsg"></div>
+    </div>
     <button class="big" id="pasteO" type="button">📋 주문 붙여넣기</button>
-    <textarea id="inO" placeholder="윙 주문 내용을 복사한 뒤 위 버튼을 누르세요.&#10;안 되면 여기를 길게 눌러 '붙여넣기' 하세요." autocomplete="off" autocorrect="off" spellcheck="false"></textarea>
+    <textarea id="inO" placeholder="윙 주문을 복사한 뒤 위 버튼을 누르세요. 여러 개를 한 번에 복사해도 돼요.&#10;안 되면 여기를 길게 눌러 '붙여넣기' 하세요." autocomplete="off" autocorrect="off" spellcheck="false"></textarea>
+    <button class="all hide" id="addO" type="button">➕ 이 글로 주문 추가</button>
     <div class="status" id="stO"></div>
+    <div class="pager hide" id="pager"><button class="nav" id="prevO" type="button" aria-label="앞 주문">◀</button><button class="pno" id="pageNo" type="button"></button><button class="nav" id="nextO" type="button" aria-label="다음 주문">▶</button><button class="lst" id="listBtn" type="button">📑 목록</button></div>
+    <div id="listV" class="hide">
+      <div class="lhead"><span id="listSum"></span><button class="btn sub" id="clrDone" type="button">완료한 것 지우기</button></div>
+      <div class="card" id="listRows"></div>
+    </div>
     <div id="outO" class="hide">
+      <div class="ohead"><div class="tt" id="oTitle"></div><button class="donebtn" id="doneBtn" type="button">⬜ 완료</button></div>
+      <div class="status" id="stP"></div>
+      <div class="note hide" id="oInv"></div>
       <button class="chain" id="chain" type="button"></button>
+      <button class="restart hide" id="restart" type="button">↺ 받는 분부터 다시 복사</button>
       <div class="card" id="rowsO"></div>
-      <button class="all" id="allBtn" type="button">📄 전체 복사 (받는 분·연락처·주소·메모)</button>
+      <div class="note" id="custNote"></div>
+      <button class="all" id="allBtn" type="button">📄 전체 복사 (받는 분·내 번호·주소·메모)</button>
       <div class="card soft" id="rowsP"></div>
+      <button class="del" id="delOne" type="button">🗑 이 주문만 지우기</button>
     </div>
   </section>
   <section class="panel" id="pT">
     <button class="big" id="pasteT" type="button">📋 송장 붙여넣기</button>
-    <textarea id="inT" placeholder="구매처 배송조회 화면이나 택배 문자를 복사한 뒤 위 버튼을 누르세요.&#10;안 되면 여기를 길게 눌러 '붙여넣기' 하세요." autocomplete="off" autocorrect="off" spellcheck="false"></textarea>
+    <textarea id="inT" placeholder="구매처 배송조회·주문내역 화면이나 택배 문자를 복사한 뒤 위 버튼을 누르세요. 여러 개를 한 번에 복사해도 돼요.&#10;안 되면 여기를 길게 눌러 '붙여넣기' 하세요." autocomplete="off" autocorrect="off" spellcheck="false"></textarea>
+    <button class="all hide" id="addT" type="button">➕ 이 글로 송장 찾기</button>
     <div class="status" id="stT"></div>
+    <div class="pager hide" id="pagerT"><button class="nav" id="prevT" type="button" aria-label="앞 송장">◀</button><button class="pno" id="pageNoT" type="button"></button><button class="nav" id="nextT" type="button" aria-label="다음 송장">▶</button><button class="lst" id="listBtnT" type="button">📑 목록</button></div>
+    <div id="listVT" class="hide">
+      <div class="lhead"><span id="listSumT"></span></div>
+      <div class="card" id="listRowsT"></div>
+    </div>
     <div id="outT" class="hide">
+      <div class="ohead"><div class="tt" id="tTitle"></div><button class="donebtn" id="doneT" type="button">⬜ 윙 입력 완료</button></div>
       <div class="card" id="invCard"></div>
-      <div class="card" id="chkCard"></div>
+    </div>
+    <div id="looseV" class="hide">
+      <div class="lhead"><span id="looseSum"></span></div>
+      <div class="note" id="looseNote"></div>
+      <div class="card" id="looseRows"></div>
     </div>
   </section>
-  <p class="muted">고객 정보는 이 휴대폰 화면에만 잠깐 있어요. 인터넷으로 보내지 않고, 1시간이 지나거나 창을 닫으면 지워져요.</p>
+  <div class="status hide" id="fullWarn"><span class="bad">⚠️ 휴대폰 저장 공간이 꽉 차서 저장이 안 돼요.</span> 완료한 주문을 지우거나 휴대폰 공간을 비워 주세요.</div>
+  <p class="muted" id="privacy">주문은 이 휴대폰에만 저장돼요. 인터넷으로 보내지 않아요.<br>넣은 지 3시간이 지나면 저절로 지워져요 (완료한 주문도). 🗑로 바로 지울 수도 있어요.<br>송장도 똑같이 3시간 뒤 지워져요. 내 번호는 이 휴대폰에만 남아요.</p>
 </main>
 <div class="toast" id="toast"></div>
 <script>
@@ -310,8 +370,56 @@
     return d;
   }
 
-  function orderAllText(d) {
-    const rows = [['받는 분', d.name], ['연락처', d.phone], ['우편번호', d.zip], ['주소', d.addr1], ['상세주소', d.addr2], ['배송메모', d.memo], ['개인통관고유부호', d.customs]];
+  // ---------- PC 주문 도우미와 같은 규칙 (core.js composeMemo · stripRef · buyerData) ----------
+  // 구매처 연락처 칸 = 대표님 번호, 고객 번호는 배송메모에 '<메모> / 배송문의) 0504-…'
+  // G마켓·옥션은 PC에서도 기본 형식(글자 수 제한 없음) → 같은 규칙
+  const DEFAULT_MEMO_TPL = '{메모} / 배송문의) {번호}';
+  function composeMemo(job, max) {
+    job = job || {};
+    let memo = clean(job.memo);
+    const num = job.num ? normalizePhone(job.num) : '';
+    const lim = max > 0 ? max : 0;
+    if (!num) { if (job.compact) memo = memo.replace(/\s+/g, ''); return lim ? memo.slice(0, lim) : memo; }
+    let tpl = String(job.tpl || DEFAULT_MEMO_TPL);
+    if (!tpl.includes('{번호}')) tpl += ' {번호}';
+    if (!tpl.includes('{메모}')) tpl = '{메모} ' + tpl;
+    if (!tpl.includes('배송문의')) tpl = tpl.replace('{번호}', (job.compact ? '배송문의)' : '배송문의) ') + '{번호}');
+    const tight = '배송문의)' + num;
+    const noMemo = () => (!job.compact && (!lim || ('배송문의) ' + num).length <= lim) ? '배송문의) ' + num : tight);
+    if (!memo) return noMemo();
+    const build = (t, m) => t.split('{메모}').join(m).split('{번호}').join(num);
+    if (!job.compact) { const full = build(tpl, memo); if (!lim || full.length <= lim) return full; }
+    const m2 = memo.replace(/\s+/g, '');
+    const ctpl = job.compact ? tpl.replace(/\s+/g, '') : '{메모}/배송문의){번호}';
+    const c = build(ctpl, m2);
+    if (!lim || c.length <= lim) return c;
+    const avail = lim - build(ctpl, '').length;
+    if (avail < 2) return tight;
+    return build(ctpl, m2.slice(0, avail));
+  }
+  function stripRef(a2) {
+    const t = clean(a2); const m = t.match(/^(.*?\S)\s*\(\s*([^()]*?)\s*\)\s*$/) || t.match(/^(.*?\S)\s*\(\s*([^()]*?)\s*(?:\.\.\.|…)?\s*$/);
+    if (!m) return t;
+    const inner = m[2];
+    if (/^[가-힣0-9·.]+(동|리|가|읍|면|로)$/.test(inner) || /^[가-힣0-9·.]+(동|리|가|읍|면|로)\s*[,，]\s*\S/.test(inner)) return m[1];
+    return t;
+  }
+  // 내 번호: 숫자 9~12자리, 0으로 시작 (PC 설정 화면과 같은 검사·모양)
+  function formatMyPhone(v) {
+    const d = String(v || '').replace(/\D/g, '');
+    if (!/^0\d{8,11}$/.test(d)) return '';
+    return d.length === 11 ? d.slice(0, 3) + '-' + d.slice(3, 7) + '-' + d.slice(7) : d.length === 10 && /^02/.test(d) ? d.slice(0, 2) + '-' + d.slice(2, 6) + '-' + d.slice(6) : d.length === 10 ? d.slice(0, 3) + '-' + d.slice(3, 6) + '-' + d.slice(6) : d.length === 12 ? d.slice(0, 4) + '-' + d.slice(4, 8) + '-' + d.slice(8) : d;
+  }
+  const maskPhone = (v) => { const d = String(v || '').replace(/\D/g, ''); return d.length >= 8 ? d.slice(0, 3) + '-****-' + d.slice(-4) : '****'; };
+  // 구매처(G마켓·옥션)에 넣을 값. 주소는 하나만: 주소찾기 검색어(괄호 참고항목 뺀 도로명주소)
+  function buyerData(d, myPhone) {
+    d = d || {};
+    const mine = formatMyPhone(myPhone);
+    return { name: d.name || '', phone: mine, noMyPhone: !mine, custPhone: d.phone || '', zip: d.zip || '',
+      addr: d.search || d.addr1 || '', addr2: d.addr2 ? stripRef(d.addr2) : '', memo: composeMemo({ memo: d.memo || '', num: d.phone || '' }, 0), customs: d.customs || '' };
+  }
+  function orderAllText(b) {
+    const rows = [['받는 분', b.name], ['연락처', b.phone], ['우편번호', b.zip], ['주소', b.addr], ['상세주소', b.addr2], ['배송메모', b.memo], ['개인통관고유부호', b.customs]];
     return rows.filter((r) => r[1]).map((r) => r[0] + ': ' + r[1]).join('\n');
   }
 
@@ -386,7 +494,7 @@
     for (const m of text.matchAll(/(?:연락처|전화|휴대폰|휴대전화|핸드폰|고객센터|사업자|기사|대표번호|문의)[^\n\d]{0,12}([\d\-\s]{8,16}\d)/g)) add(m[1]);
     return set;
   }
-  function parseTracking(text, order) {
+  function parseTracking(text, order, extraBad) {
     const t0 = String(text || '').replace(/\r/g, '').replace(/\u00a0|\u200b|\ufeff/g, ' ');
     const t = stripNoise(t0);
     const lines = t.split('\n').map(clean);
@@ -418,6 +526,7 @@
       }
     }
     const bad = forbidden(t0.replace(/\r/g, ''));
+    (extraBad || []).forEach((d) => bad.add(String(d)));
     if (order) { [order.phone, order.orderNo, order.zip].forEach((x) => { const d = String(x || '').replace(/\D/g, ''); if (d.length >= 6) bad.add(d); }); }
     const keep = (d) => !bad.has(d) && !phoneLike(d) && (!out.carrier || lenOk(out.carrier, d));
     let good = cands.filter(keep);
@@ -478,7 +587,217 @@
     return { name: order.name ? nameIn(order.name, text) : null, unit: unitIn(unitsOf(order.addr2), text) };
   }
 
-  const API = { parseOrder, parseTracking, splitAddress, normalizePhone, canonCarrier, unitsOf, orderAllText, compare, WING_NAME };
+  // ---------------- 여러 주문 (한 번에 붙여넣기 · 보관) ----------------
+  const ORDER_ANCHOR = /^\[?\s*주문\s*번호(?![가-힣]*(조회|검색|확인))/;
+  function nameAnchor(l) {
+    const head = clean(l.split(/[:：\t]/)[0]);
+    const tries = [head]; const w = head.split(' '); for (let n = Math.min(3, w.length); n >= 1; n--) tries.push(w.slice(0, n).join(' '));
+    for (const t of tries) { const m = labelMatch(t); if (m && m.key === 'name' && !EXCLUDE_CTX.test(compact(t))) return true; }
+    return false;
+  }
+  const SEP_LINE = /^\s*([-=_*~·━─]{3,}|#{3,})\s*$/;
+  const okChunk = (t) => parseOrder(t).found >= 2;
+  // 표(탭) 복사: 머리줄 + 줄마다 주문 하나
+  function tableChunks(lines) {
+    for (let h = 0; h < lines.length; h++) {
+      const head = lines[h].split('\t').map(clean);
+      if (head.length < 3 || head.filter((c) => labelMatch(c)).length < 3 || !head.every((c) => !c || isHeaderish(c) || labelMatch(c))) continue;
+      const out = [];
+      for (let i = h + 1; i < lines.length; i++) {
+        const cells = lines[i].split('\t').map(clean);
+        if (cells.length < 3) continue;
+        out.push(head.map((k, j) => (k && cells[j] ? k + ': ' + cells[j] : '')).filter(Boolean).join('\n'));
+      }
+      return out.filter(okChunk);
+    }
+    return [];
+  }
+  // 나눈 조각 중 주문이 아닌 조각(머리글 등)은 다음 조각에 붙임
+  function mergeChunks(parts) {
+    const out = []; let carry = '';
+    for (const p of parts) {
+      const t = (carry ? carry + '\n' : '') + p;
+      if (okChunk(t)) { out.push(t); carry = ''; } else carry = t;
+    }
+    if (carry && out.length) out[out.length - 1] += '\n' + carry;
+    return out;
+  }
+  function cutAt(lines, starts) {
+    const parts = [];
+    starts = [0].concat(starts.filter((s) => s > 0));
+    for (let k = 0; k < starts.length; k++) parts.push(lines.slice(starts[k], starts[k + 1] == null ? lines.length : starts[k + 1]).join('\n'));
+    return parts.filter((p) => p.trim());
+  }
+  function splitOrders(text) {
+    const all = String(text || '').replace(/\r/g, '').replace(/\u00a0|\u200b|\ufeff/g, ' ');
+    if (!all.trim()) return [];
+    const lines = all.split('\n');
+    const tl = lines.map((l) => clean(l));
+    // 1) 표 복사
+    const tb = tableChunks(lines);
+    if (tb.length >= 2) return tb;
+    // 2) 주문번호가 여러 번
+    const oa = []; tl.forEach((l, i) => { if (ORDER_ANCHOR.test(l)) oa.push(i); });
+    if (oa.length >= 2) { const m = mergeChunks(cutAt(lines, oa)); if (m.length >= 2) return m; }
+    // 3) 받는 분이 여러 번 → 그 앞의 주문번호·상품·주문자 줄까지 같이
+    const na = []; tl.forEach((l, i) => { if (l && nameAnchor(l)) na.push(i); });
+    if (na.length >= 2) {
+      const starts = na.map((a, k) => {
+        const lo = k ? na[k - 1] + 1 : 0; let s = a;
+        for (let i = a - 1; i >= lo; i--) {
+          const l = tl[i]; if (!l) continue;
+          const lm = labelMatch(l.split(/[:：\t]/)[0]);
+          if ((lm && /^(addr|addr2|memo|zip|customs)$/.test(lm.key)) || ADDR_LINE.test(l) || UNIT_LINE.test(l)) break;
+          if (SEP_LINE.test(l) || ORDER_ANCHOR.test(l) || BUYER_HEAD.test(l) || RECV_HEAD.test(l) || (lm && /^(product|option|qty|orderNo)$/.test(lm.key))) s = i;
+        }
+        return s;
+      });
+      const m = mergeChunks(cutAt(lines, starts)); if (m.length >= 2) return m;
+    }
+    // 4) 구분선 또는 빈 줄 두 개 이상
+    const blocks = all.split(/\n\s*[-=_*~·━─]{3,}\s*\n|\n\s*\n\s*\n+/).filter((b) => b.trim());
+    if (blocks.length >= 2) { const m = mergeChunks(blocks); if (m.length >= 2) return m; }
+    // 5) 빈 줄 하나로 나뉜 덩어리마다 주문이 다 들어 있으면
+    const b1 = all.split(/\n\s*\n/).filter((b) => b.trim());
+    if (b1.length >= 2 && b1.every(okChunk)) return b1;
+    return [all.trim()];
+  }
+
+  // 보관할 칸만 (원문은 저장 안 함)
+  const KEEP = ['name', 'phone', 'zip', 'addr1', 'addr2', 'search', 'memo', 'product', 'option', 'qty', 'orderNo', 'customs', 'masked', 'found'];
+  function slim(d) { const o = {}; KEEP.forEach((k) => { if (d[k] !== undefined && d[k] !== '' && d[k] !== false) o[k] = d[k]; }); return o; }
+  const flat = (s) => clean(s).replace(/\s+/g, '');
+  function orderKey(d) {
+    d = d || {};
+    const base = [flat(d.name), String(d.phone || '').replace(/\D/g, ''), flat(d.addr1), flat(d.addr2), flat(d.product), flat(d.option)].join('|');
+    return d.orderNo ? 'no:' + d.orderNo + '|' + flat(d.product) + '|' + flat(d.option) : 'v:' + base;
+  }
+  function maskName(n) {
+    const s = clean(n).replace(/\s/g, '');
+    if (!s) return '(이름 없음)';
+    const a = Array.from(s);
+    if (a.length === 1) return a[0];
+    if (a.length === 2) return a[0] + '*';
+    return a[0] + '*'.repeat(a.length - 2) + a[a.length - 1];
+  }
+  const KEEP_MS = 3 * 60 * 60 * 1000;  // 넣은 지 3시간 지나면 지움 (완료한 것도). 주문 개수 제한 없음
+  // 3시간 지난 주문 지우기 (완료한 것도 같음)
+  function pruneOrders(list, now) {
+    now = now || Date.now();
+    return (list || []).filter((o) => o && o.d && o.t && now - o.t < KEEP_MS && o.t <= now + 60000);
+  }
+  // 글 하나(주문 여러 개일 수 있음)를 목록에 더함
+  function addOrders(list, text, now, idGen) {
+    now = now || Date.now();
+    const cur = pruneOrders(list, now).slice();
+    const keys = new Set(cur.map((o) => orderKey(o.d)));
+    const res = { list: cur, added: [], dup: 0, bad: 0 };
+    let n = 0;
+    for (const chunk of splitOrders(text)) {
+      const d = parseOrder(chunk);
+      if (!d.found) { res.bad++; continue; }
+      const s = slim(d), k = orderKey(s);
+      if (keys.has(k)) { res.dup++; continue; }
+      keys.add(k);
+      const o = { id: idGen ? idGen() : now.toString(36) + '-' + (n++) + '-' + Math.random().toString(36).slice(2, 7), t: now, done: false, step: 0, d: s };
+      cur.push(o); res.added.push(o);
+    }
+    return res;
+  }
+  // 송장 글이 어느 주문 것인지 (이름·동호수)
+  function matchOrder(orders, text, prefer) {
+    let best = -1, bestS = 0;
+    (orders || []).forEach((o, i) => {
+      const d = o.d || o;
+      const c = compare({ name: d.name || '', addr2: d.addr2 || '' }, String(text || ''));
+      let s = 0;
+      if (c.name === 'same') s += 3; else if (c.name === 'masked') s += 2; else if (c.name && c.name.indexOf('diff:') === 0) s -= 3;
+      if (c.unit === 'same') s += 2; else if (c.unit && c.unit.indexOf('diff:') === 0) s -= 2;
+      if (i === prefer) s += 0.5;
+      if (s > bestS) { bestS = s; best = i; }
+    });
+    return bestS >= 2 ? best : -1;
+  }
+
+  // ---------------- 여러 송장 → 주문에 짝 짓기 (확실할 때만) ----------------
+  const INV_LABEL = /(운\s*송\s*장|송\s*장)\s*(번\s*호)?/;
+  function mergeTrk(parts, back) {
+    const has = (t) => !!parseTracking(t).invoice;
+    const out = []; let carry = '';
+    for (const p of parts) {
+      const t = (carry ? carry + '\n' : '') + p;
+      if (has(t)) { out.push(t); carry = ''; } else carry = t;
+    }
+    if (carry && out.length) out[out.length - 1] += '\n' + carry;
+    return out;
+  }
+  function splitTracking(text) {
+    const all = String(text || '').replace(/\r/g, '').replace(/\u00a0|\u200b|\ufeff/g, ' ');
+    if (!all.trim()) return [];
+    const lines = all.split('\n'), tl = lines.map(clean);
+    const blocks = all.split(/\n\s*[-=_*~·━─]{3,}\s*\n|\n\s*\n\s*\n+/).filter((b) => b.trim());
+    if (blocks.length >= 2) { const m = mergeTrk(blocks); if (m.length >= 2) return m; }
+    const oa = []; tl.forEach((l, i) => { if (ORDER_ANCHOR.test(l)) oa.push(i); });
+    if (oa.length >= 2) { const m = mergeTrk(cutAt(lines, oa)); if (m.length >= 2) return m; }
+    const na = []; tl.forEach((l, i) => { if (l && nameAnchor(l)) na.push(i); });
+    if (na.length >= 2) { const m = mergeTrk(cutAt(lines, na)); if (m.length >= 2) return m; }
+    // 송장번호 줄 바로 뒤에서 자름
+    const ia = []; tl.forEach((l, i) => { if (INV_LABEL.test(l)) { const nextNum = !/\d{6}/.test(l) && /^\d[\d \-]{7,}$/.test(tl[i + 1] || ''); ia.push(i + (nextNum ? 2 : 1)); } });
+    if (ia.length >= 2) { const m = mergeTrk(cutAt(lines, ia.slice(0, -1))); if (m.length >= 2) return m; }
+    const b1 = all.split(/\n\s*\n/).filter((b) => b.trim());
+    if (b1.length >= 2 && b1.every((b) => parseTracking(b).invoice)) return b1;
+    return [all.trim()];
+  }
+  const roadOf = (s) => { const m = clean(s).replace(/\([^)]*\)/g, ' ').match(/([가-힣A-Za-z0-9·]+(?:로|길)\s?\d+(?:-\d+)?)(?![\d])/); return m ? m[1].replace(/\s+/g, '') : ''; };
+  // 이 송장 글이 이 주문 것인지: 이름(같음/가려진 이름 맞음) + 동·호수(또는 동·호수 없는 집은 도로명) 둘 다 맞아야 'yes'
+  function trackFits(d, text) {
+    const c = compare({ name: d.name || '', addr2: d.addr2 || '' }, text);
+    if (!(c.name === 'same' || c.name === 'masked')) return false;
+    if (c.unit === 'same') return true;
+    if (c.unit && String(c.unit).indexOf('diff:') === 0) return false;
+    const r = roadOf(d.search || d.addr1 || '');
+    return !!r && text.replace(/\s+/g, '').includes(r);
+  }
+  function whoIn(text) {
+    const m = String(text).match(/(?:받는\s*(?:분|사람|이)|수취인|수령인|수령자|수하인)(?:\s*(?:명|이름|성명))?\s*[:：]?\s*([가-힣*＊]{2,5})(?![가-힣])/);
+    return m && !/^(정보|주소|연락처|전화)/.test(m[1]) ? maskName(m[1].replace(/＊/g, '*')) : '';
+  }
+  // 송장 글 하나(여러 개일 수 있음)를 주문 목록에 넣음. 짝이 확실하지 않으면 loose(못 찾음)로
+  function applyTracking(list, loose, text, now, idGen) {
+    now = now || Date.now();
+    list = pruneOrders(list, now).map((o) => Object.assign({}, o));
+    loose = pruneOrders(loose, now).slice();
+    const res = { list, loose, paired: [], unmatched: [], dup: 0, found: 0, why: '' };
+    const extra = [];
+    list.forEach((o) => [o.d.phone, o.d.orderNo, o.d.zip].forEach((x) => { const d = String(x || '').replace(/\D/g, ''); if (d.length >= 6) extra.push(d); }));
+    const known = new Set(list.filter((o) => o.inv).map((o) => o.inv.no).concat(loose.map((x) => x.inv.no)));
+    let n = 0;
+    const chunks = splitTracking(text);
+    for (const chunk of chunks) {
+      const r = parseTracking(chunk, null, extra);
+      if (!r.invoice) { if (!res.why) res.why = r.why; continue; }
+      const nums = [r.invoice].concat(r.others);
+      res.found += nums.length;
+      const inv = (no) => ({ no, car: r.carrier || '', wing: r.wing || '' });
+      let idx = -1, why = '';
+      if (r.guessed) why = 'guess';
+      else if (nums.length > 1) why = 'multi';
+      else {
+        const hits = []; list.forEach((o, i) => { if (trackFits(o.d, chunk)) hits.push(i); });
+        if (hits.length === 1) idx = hits[0]; else why = hits.length ? 'many' : (list.length ? 'nomatch' : 'noorder');
+      }
+      if (idx >= 0 && list[idx].inv && list[idx].inv.no !== r.invoice) { why = 'taken'; idx = -1; }
+      for (const no of nums) {
+        if (known.has(no)) { res.dup++; continue; }
+        known.add(no);
+        if (idx >= 0) { list[idx].inv = Object.assign(inv(no), { t: now, done: false }); res.paired.push(list[idx].id); }
+        else { const x = { id: idGen ? idGen() : 'v' + now.toString(36) + '-' + (n++) + '-' + Math.random().toString(36).slice(2, 7), t: now, inv: inv(no), why, who: whoIn(chunk), d: {} }; loose.push(x); res.unmatched.push(x.id); }
+      }
+    }
+    return res;
+  }
+
+  const API = { splitTracking, applyTracking, trackFits, splitOrders, orderKey, maskName, pruneOrders, addOrders, matchOrder, slim, KEEP_MS, composeMemo, stripRef, formatMyPhone, maskPhone, buyerData, DEFAULT_MEMO_TPL, parseOrder, parseTracking, splitAddress, normalizePhone, canonCarrier, unitsOf, orderAllText, compare, WING_NAME };
   root.MH = API;
   if (typeof module !== 'undefined' && module.exports) module.exports = API;
 })(typeof window !== 'undefined' ? window : globalThis);
@@ -488,9 +807,35 @@
 (function () {
   'use strict';
   const $ = (id) => document.getElementById(id);
-  const KEY = 'mh100', TTL = 60 * 60 * 1000;
-  let order = null, chainIdx = 0, chainList = [], track = null, savedAt = 0;
   const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const SKEY = 'mh_orders', MYKEY = 'mh_myPhone';
+  // 주문·송장은 이 휴대폰(localStorage)에만. 아이폰 홈 화면 앱은 G마켓으로 갔다 오면 다시 열리면서 sessionStorage가 지워질 수 있어서 localStorage 사용.
+  let S = { list: [], loose: [], cur: null, curT: null };
+  let full = false;
+
+  // ---------- 저장 ----------
+  function load() {
+    try { sessionStorage.removeItem('mh100'); } catch (e) {}
+    try { const v = JSON.parse(localStorage.getItem(SKEY) || 'null'); if (v && Array.isArray(v.list)) S = { list: v.list, loose: Array.isArray(v.loose) ? v.loose : [], cur: v.cur || null, curT: v.curT || null }; } catch (e) {}
+    prune(true);
+  }
+  function save() {
+    try {
+      if (!S.list.length && !S.loose.length) localStorage.removeItem(SKEY);
+      else localStorage.setItem(SKEY, JSON.stringify(S));
+      full = false;
+    } catch (e) { full = true; }
+    $('fullWarn').classList.toggle('hide', !full);
+  }
+  function prune(quiet) {
+    const n0 = S.list.length + S.loose.length;
+    S.list = MH.pruneOrders(S.list); S.loose = MH.pruneOrders(S.loose);
+    const gone = n0 - S.list.length - S.loose.length;
+    if (gone) { save(); if (!quiet) toast('3시간 지난 주문·송장 ' + gone + '개를 지웠어요'); }
+    return gone;
+  }
+  const idx = (id) => S.list.findIndex((o) => o.id === id);
+  const curO = () => S.list[idx(S.cur)] || null;
 
   // ---------- 복사 ----------
   function fallbackCopy(v) {
@@ -512,41 +857,112 @@
   }
   let tt = 0;
   function toast(s) { const t = $('toast'); t.textContent = s; t.classList.add('on'); clearTimeout(tt); tt = setTimeout(() => t.classList.remove('on'), 1800); }
-
-  // ---------- 붙여넣기 ----------
   function pasteInto(ta, after) {
     const fail = () => { ta.focus(); toast("칸을 길게 눌러 '붙여넣기' 해 주세요"); };
     if (!navigator.clipboard || !navigator.clipboard.readText) return fail();
-    navigator.clipboard.readText().then((s) => { if (!s || !s.trim()) return fail(); ta.value = s; after(true); }, fail);
+    navigator.clipboard.readText().then((s) => { if (!s || !s.trim()) return fail(); ta.value = s; after(); }, fail);
   }
 
-  // ---------- 주문 ----------
-  const FIELDS = [['name', '받는 분'], ['phone', '연락처'], ['zip', '우편번호'], ['search', '주소검색'], ['addr1', '주소'], ['addr2', '상세주소'], ['memo', '배송메모'], ['customs', '통관부호']];
-  function renderOrder() {
-    const txt = $('inO').value;
-    if (!txt.trim()) { order = null; $('outO').classList.add('hide'); $('stO').innerHTML = ''; renderTrack(); return; }
-    order = MH.parseOrder(txt);
-    $('inO').classList.toggle('has', !!order.found);
-    const d = order, msg = [];
-    if (!d.found) { msg.push('<span class="bad">⚠️ 받는 분·연락처·주소를 못 찾았어요.</span> 윙 주문 상세 화면에서 받는 분 정보까지 같이 복사해 주세요.'); }
-    else {
-      const miss = [['name', '받는 분'], ['phone', '연락처'], ['addr1', '주소']].filter((x) => !d[x[0]]).map((x) => x[1]);
-      msg.push(miss.length ? '<span class="warn">⚠️ ' + miss.join('·') + '을(를) 못 찾았어요.</span> 그 칸은 직접 확인해 주세요.' : '<span class="ok">✅ 받는 분·연락처·주소를 찾았어요.</span>');
-      if (d.addr1 && !d.addr2) msg.push('<span class="warn">⚠️ 상세주소(동·호수)가 안 보여요.</span> 단독주택이 아니면 확인해 주세요.');
-      if (d.masked) msg.push('<span class="warn">⚠️ 가려진 글자(*)가 있어요.</span> 윙 주문 상세에서 다시 복사해 주세요.');
-    }
-    $('stO').innerHTML = msg.join('<br>');
-    $('outO').classList.toggle('hide', !d.found);
+  // ---------- 내 번호 ----------
+  const myPhone = () => { try { return MH.formatMyPhone(localStorage.getItem(MYKEY) || ''); } catch (e) { return ''; } };
+  function renderMine(editing, msg, bad) {
+    const v = myPhone();
+    $('mine').classList.toggle('need', !v);
+    $('mineShow').classList.toggle('hide', !v || !!editing);
+    $('mineForm').classList.toggle('hide', !!v && !editing);
+    $('mineTxt').textContent = v ? '📞 내 번호: ' + MH.maskPhone(v) : '';
+    $('mineIn').placeholder = v ? '바꾸려면 새 번호 입력' : '예) 010-1234-5678';
+    $('mineMsg').textContent = msg || (v ? '연락처 칸에는 항상 이 번호를 넣어요.' : '⚠️ 아직 없어요. 한 번만 저장하면 연락처 칸에 이 번호를 넣어요.');
+    $('mineMsg').classList.toggle('bad', !!bad || !v);
+  }
+  $('mineSave').addEventListener('click', () => {
+    const v = MH.formatMyPhone($('mineIn').value);
+    if (!v) { renderMine(true, '전화번호를 숫자로 넣어 주세요 (예: 010-1234-5678)', true); return; }
+    try { localStorage.setItem(MYKEY, v); } catch (e) {}
+    $('mineIn').value = ''; renderMine(false, '저장했어요: ' + MH.maskPhone(v)); renderO();
+  });
+  $('mineEdit').addEventListener('click', () => { renderMine(true); $('mineIn').focus(); });
+  $('mineDel').addEventListener('click', () => { try { localStorage.removeItem(MYKEY); } catch (e) {} renderMine(false); renderO(); });
+  function askMine() { renderMine(true, '⚠️ 먼저 내 번호를 저장해 주세요', true); window.scrollTo(0, 0); $('mineIn').focus(); toast('먼저 맨 위에 내 번호를 저장해 주세요'); }
+
+  // ---------- 주문 넣기 ----------
+  function addFrom(text) {
+    const ta = $('inO');
+    if (!String(text || '').trim()) return;
+    prune(true);
+    const r = MH.addOrders(S.list, text);
+    S.list = r.list;
+    const msg = [];
+    if (r.added.length) { S.cur = r.added[0].id; listOpen = false; msg.push('<span class="ok">✅ 주문 ' + r.added.length + '개를 넣었어요.</span>' + (S.list.length > r.added.length ? ' (모두 ' + S.list.length + '개)' : '')); }
+    if (r.dup) msg.push('<span class="warn">ℹ️ 이미 넣은 주문 ' + r.dup + '개는 뺐어요.</span>');
+    if (!r.added.length && !r.dup) msg.push('<span class="bad">⚠️ 받는 분·연락처·주소를 못 찾았어요.</span> 윙 주문 상세 화면에서 받는 분 정보까지 같이 복사해 주세요.');
+    ta.value = ''; $('addO').classList.add('hide');
+    save(); renderO(); $('stO').innerHTML = msg.join('<br>');
+    if (r.added.length) $('pager').scrollIntoView({ block: 'start' });
+  }
+  $('pasteO').addEventListener('click', () => pasteInto($('inO'), () => addFrom($('inO').value)));
+  $('addO').addEventListener('click', () => addFrom($('inO').value));
+  let toO = 0;
+  $('inO').addEventListener('input', (e) => {
+    clearTimeout(toO);
+    if (e.inputType === 'insertFromPaste') toO = setTimeout(() => addFrom($('inO').value), 250);
+    else $('addO').classList.toggle('hide', !$('inO').value.trim());
+  });
+
+  // ---------- 주문 페이지 ----------
+  const FIELDS = [['name', '받는 분'], ['phone', '연락처'], ['zip', '우편번호'], ['addr', '주소'], ['addr2', '상세주소'], ['memo', '배송메모'], ['customs', '통관부호']];
+  const STEPS = [['name', '받는 분'], ['phone', '연락처(내 번호)'], ['addr', '주소'], ['addr2', '상세주소'], ['memo', '배송메모']];
+  let listOpen = false, buyer = null, chainList = [];
+  const fmtInv = (d) => String(d || '').replace(/(\d{4})(?=\d)/g, '$1 ');
+  const titleOf = (o) => MH.maskName(o.d.name) + (o.d.product ? ' · ' + o.d.product : '');
+  function renderO() {
+    const L = S.list, n = L.length;
+    if (n && idx(S.cur) < 0) S.cur = L[0].id;
+    const i = idx(S.cur), o = L[i];
+    $('pasteO').textContent = n ? '📋 주문 더 붙여넣기 (+ 주문 추가)' : '📋 주문 붙여넣기';
+    $('inO').classList.toggle('has', !!n);
+    $('pager').classList.toggle('hide', !n);
+    if (!n) { $('outO').classList.add('hide'); $('listV').classList.add('hide'); $('stO').innerHTML = ''; buyer = null; renderT(); return; }
+    const doneN = L.filter((x) => x.done).length;
+    $('pageNo').textContent = (i + 1) + ' / ' + n + (doneN ? '  ·  ✅' + doneN : '');
+    $('prevO').disabled = i <= 0; $('nextO').disabled = i >= n - 1;
+    $('listBtn').textContent = listOpen ? '✕ 닫기' : '📑 목록';
+    $('listV').classList.toggle('hide', !listOpen);
+    $('outO').classList.toggle('hide', listOpen);
+    if (listOpen) renderList(); else renderPage(o);
+    renderT();
+  }
+  function renderList() {
+    const L = S.list, doneN = L.filter((x) => x.done).length;
+    $('listSum').textContent = '주문 ' + L.length + '개 · 완료 ' + doneN + '개';
+    $('clrDone').classList.toggle('hide', !doneN);
+    $('listRows').innerHTML = L.map((o, i) => '<button class="li' + (o.id === S.cur ? ' cur' : '') + (o.done ? ' fin' : '') + '" type="button" data-id="' + esc(o.id) + '"><span class="n">' + (i + 1) + '</span><span class="m">' + (o.done ? '✅' : '⬜') + '</span><span class="x">' + esc(MH.maskName(o.d.name)) + '<small>' + esc(o.d.product || '') + '</small></span>' + (o.inv ? '<span class="m">🚚</span>' : '') + '</button>').join('');
+  }
+  function renderPage(o) {
+    const d = o.d, msg = [];
+    const bd = buyer = MH.buyerData(d, myPhone());
+    $('oTitle').textContent = titleOf(o);
+    $('doneBtn').classList.toggle('on', !!o.done); $('doneBtn').textContent = o.done ? '✅ 완료' : '⬜ 완료';
+    const miss = [['name', '받는 분'], ['phone', '고객 연락처'], ['addr1', '주소']].filter((x) => !d[x[0]]).map((x) => x[1]);
+    if (miss.length) msg.push('<span class="warn">⚠️ ' + miss.join('·') + '을(를) 못 찾았어요.</span> 그 칸은 직접 확인해 주세요.');
+    if (d.addr1 && !d.addr2) msg.push('<span class="warn">⚠️ 상세주소(동·호수)가 안 보여요.</span> 단독주택이 아니면 확인해 주세요.');
+    if (d.masked) msg.push('<span class="warn">⚠️ 가려진 글자(*)가 있어요.</span> 윙 주문 상세에서 다시 복사해 주세요.');
+    if (bd.noMyPhone) msg.push('<span class="bad">⚠️ 내 번호가 없어요.</span> 맨 위에 한 번만 저장해 주세요.');
+    $('stP').innerHTML = msg.join('<br>');
+    $('oInv').classList.toggle('hide', !o.inv);
+    $('oInv').textContent = o.inv ? '🚚 송장: ' + (o.inv.wing || o.inv.car || '택배사 모름') + ' ' + fmtInv(o.inv.no) + ' (송장 뽑기에서 복사)' : '';
     let h = '';
     for (const [k, lab] of FIELDS) {
-      if (k === 'search' && (!d.search || d.search === d.addr1)) continue;
-      if ((k === 'customs' || k === 'zip' || k === 'memo') && !d[k]) continue;
-      const v = d[k];
-      h += '<div class="row"><div class="k">' + lab + '</div><div class="v' + (v ? '' : ' empty') + (k === 'phone' || k === 'zip' ? ' nw' : '') + '">' + (v ? esc(v) : '없음') + '</div>' +
+      if ((k === 'customs' || k === 'zip' || k === 'memo') && !bd[k]) continue;
+      const v = bd[k];
+      const lb = k === 'phone' ? '연락처<br><small>(내 번호)</small>' : lab;
+      const empty = k === 'phone' && !v ? '<button class="btn" type="button" id="needMine">내 번호 저장하기</button>' : '없음';
+      h += '<div class="row"><div class="k">' + lb + '</div><div class="v' + (v ? '' : ' empty') + (k === 'phone' || k === 'zip' ? ' nw' : '') + '">' + (v ? esc(v) : empty) + '</div>' +
         (v ? '<button class="btn" type="button" data-k="' + k + '" data-t="복사">복사</button>' : '') +
         (k === 'phone' && v ? '<button class="btn sub" type="button" data-k="phoneDigits" data-t="숫자만">숫자만</button>' : '') + '</div>';
     }
     $('rowsO').innerHTML = h;
+    $('custNote').textContent = bd.custPhone ? 'ℹ️ 고객 연락처(' + bd.custPhone + ')는 배송메모 안에만 넣어요.' : '';
     let p = '';
     [['product', '상품'], ['option', '옵션'], ['qty', '수량'], ['orderNo', '주문번호']].forEach(([k, lab]) => {
       if (!d[k]) return;
@@ -554,103 +970,183 @@
       p += '<div class="row"><div class="k">' + lab + '</div><div class="v" style="font-size:17px">' + esc(v) + '</div><button class="btn sub" type="button" data-k="' + k + '" data-t="복사">복사</button></div>';
     });
     $('rowsP').innerHTML = p; $('rowsP').classList.toggle('hide', !p);
-    chainList = [['name', '받는 분'], ['phone', '연락처'], [d.search ? 'search' : 'addr1', '주소 검색어'], ['addr2', '상세주소'], ['memo', '배송메모']].filter((x) => d[x[0]]);
-    chainIdx = 0; renderChain();
-    renderTrack();
+    chainList = STEPS.filter((x) => x[0] === 'phone' || bd[x[0]]);
+    if (!(o.step >= 0)) o.step = 0;
+    o.step = Math.min(o.step, chainList.length);
+    renderChain();
   }
-  function valOf(k) { if (!order) return ''; if (k === 'phoneDigits') return order.phone.replace(/\D/g, ''); return order[k] || ''; }
+  function valOf(k) { const o = curO(); if (!o || !buyer) return ''; if (k === 'phoneDigits') return (buyer.phone || '').replace(/\D/g, ''); if (k in buyer) return buyer[k] || ''; return o.d[k] || ''; }
   function renderChain() {
-    const b = $('chain');
-    if (!chainList.length) { b.classList.add('hide'); return; }
-    b.classList.remove('hide');
-    if (chainIdx >= chainList.length) { b.innerHTML = '✓ 다 복사했어요<small>누르면 처음(받는 분)부터 다시</small>'; return; }
-    const cur = chainList[chainIdx], nx = chainList[chainIdx + 1];
-    b.innerHTML = (chainIdx + 1) + '/' + chainList.length + ' ' + cur[1] + ' 복사<small>' + esc(valOf(cur[0])).slice(0, 40) + (nx ? ' · 다음: ' + nx[1] : '') + '</small>';
+    const o = curO(), b = $('chain'); if (!o) return;
+    b.classList.remove('wait');
+    const st = o.step || 0, total = chainList.length;
+    $('restart').classList.toggle('hide', st === 0);
+    if (st >= total) {
+      const nx = nextUndone(o.id);
+      b.innerHTML = '✓ 다 복사했어요<small>' + (o.done ? (nx ? '누르면 다음 안 한 주문으로' : '모든 주문을 완료했어요') : '누르면 ✅ 완료하고 ' + (nx ? '다음 주문으로' : '끝')) + '</small>';
+      return;
+    }
+    const cur = chainList[st], nx = chainList[st + 1];
+    if (cur[0] === 'phone' && !buyer.phone) { b.classList.add('wait'); b.innerHTML = (st + 1) + '/' + total + ' 연락처(내 번호)<small>먼저 맨 위에 내 번호를 저장해 주세요 (누르면 이동)</small>'; return; }
+    b.innerHTML = (st + 1) + '/' + total + ' ' + cur[1] + ' 복사<small>' + esc(valOf(cur[0]).slice(0, 40)) + (nx ? ' · 다음: ' + nx[1] : '') + '</small>';
   }
+  function nextUndone(id) {
+    const L = S.list, i = L.findIndex((o) => o.id === id);
+    for (let k = 1; k < L.length; k++) { const o = L[(i + k) % L.length]; if (!o.done) return o; }
+    return null;
+  }
+  function go(id) { if (!id) return; S.cur = id; listOpen = false; save(); renderO(); window.scrollTo(0, 0); }
+  function step(dir) { const i = idx(S.cur) + dir; if (i >= 0 && i < S.list.length) { go(S.list[i].id); toast((i + 1) + ' / ' + S.list.length + ' ' + MH.maskName(S.list[i].d.name)); } }
+  function setDone(o, v) { o.done = v; o.doneAt = v ? Date.now() : 0; save(); }
   $('chain').addEventListener('click', () => {
-    if (chainIdx >= chainList.length) { chainIdx = 0; renderChain(); return; }
-    const cur = chainList[chainIdx];
-    copy(valOf(cur[0]), cur[1]).then((ok) => { if (ok) { chainIdx++; renderChain(); } });
+    const o = curO(); if (!o) return;
+    if ((o.step || 0) >= chainList.length) {
+      if (!o.done) { setDone(o, true); toast('✅ ' + MH.maskName(o.d.name) + ' 완료'); }
+      const nx = nextUndone(o.id);
+      if (nx) go(nx.id); else renderO();
+      return;
+    }
+    const cur = chainList[o.step || 0];
+    if (cur[0] === 'phone' && !buyer.phone) { askMine(); return; }
+    copy(valOf(cur[0]), cur[1]).then((ok) => { if (ok) { o.step = (o.step || 0) + 1; save(); renderChain(); } });
   });
-  $('rowsO').addEventListener('click', onRowCopy); $('rowsP').addEventListener('click', onRowCopy);
+  $('restart').addEventListener('click', () => { const o = curO(); if (o) { o.step = 0; save(); renderChain(); } });
+  $('doneBtn').addEventListener('click', () => { const o = curO(); if (!o) return; setDone(o, !o.done); toast(o.done ? '✅ 완료로 표시했어요' : '완료 표시를 뺐어요'); renderO(); });
+  $('rowsO').addEventListener('click', (e) => { if (e.target.id === 'needMine') { askMine(); return; } onRowCopy(e); });
+  $('rowsP').addEventListener('click', onRowCopy);
   function onRowCopy(e) {
     const b = e.target.closest('button[data-k]'); if (!b) return;
-    const k = b.dataset.k; const lab = (FIELDS.find((f) => f[0] === k) || [0, k === 'phoneDigits' ? '연락처 숫자' : ''])[1];
+    const k = b.dataset.k; const lab = (FIELDS.find((f) => f[0] === k) || [0, k === 'phoneDigits' ? '내 번호 숫자' : ''])[1];
     copy(valOf(k), lab || valOf(k), b);
-    const ci = chainList.findIndex((x) => x[0] === k); if (ci >= 0 && ci === chainIdx) { chainIdx++; renderChain(); }
+    const o = curO(), ci = chainList.findIndex((x) => x[0] === k);
+    if (o && ci >= 0 && ci === (o.step || 0)) { o.step++; save(); renderChain(); }
   }
-  $('allBtn').addEventListener('click', (e) => copy(MH.orderAllText(order), '받는 분·연락처·주소 전체'));
+  $('allBtn').addEventListener('click', () => { if (!buyer) return; if (!buyer.phone) toast('내 번호가 없어서 연락처는 빼고 복사해요'); copy(MH.orderAllText(buyer), '받는 분·내 번호·주소·메모 전체'); });
+  $('prevO').addEventListener('click', () => step(-1));
+  $('nextO').addEventListener('click', () => step(1));
+  $('pageNo').addEventListener('click', () => { listOpen = !listOpen; renderO(); });
+  $('listBtn').addEventListener('click', () => { listOpen = !listOpen; renderO(); });
+  $('listRows').addEventListener('click', (e) => { const b = e.target.closest('button[data-id]'); if (b) go(b.dataset.id); });
+  $('clrDone').addEventListener('click', () => { const n = S.list.filter((o) => o.done).length; S.list = S.list.filter((o) => !o.done); save(); renderO(); toast('완료한 주문 ' + n + '개를 지웠어요'); });
+  $('delOne').addEventListener('click', () => {
+    const b = $('delOne'), i = idx(S.cur); if (i < 0) return;
+    if (!b.dataset.arm) { b.dataset.arm = '1'; b.textContent = '한 번 더 누르면 이 주문을 지워요'; setTimeout(() => { delete b.dataset.arm; b.textContent = '🗑 이 주문만 지우기'; }, 3000); return; }
+    delete b.dataset.arm; b.textContent = '🗑 이 주문만 지우기';
+    const name = MH.maskName(S.list[i].d.name);
+    S.list.splice(i, 1); S.cur = S.list.length ? S.list[Math.min(i, S.list.length - 1)].id : null;
+    save(); renderO(); toast(name + ' 주문을 지웠어요');
+  });
+  // 밀어서 넘기기
+  function swipe(el, fn) {
+    let x0 = null, y0 = 0;
+    el.addEventListener('touchstart', (e) => { const t = e.touches[0]; x0 = t.clientX; y0 = t.clientY; }, { passive: true });
+    el.addEventListener('touchend', (e) => { if (x0 == null) return; const t = e.changedTouches[0], dx = t.clientX - x0, dy = t.clientY - y0; x0 = null; if (Math.abs(dx) > 60 && Math.abs(dy) < 50) fn(dx < 0 ? 1 : -1); }, { passive: true });
+  }
+  swipe($('outO'), step);
 
   // ---------- 송장 ----------
-  const fmtInv = (d) => d.replace(/(\d{4})(?=\d)/g, '$1 ');
-  function renderTrack(autoCopy) {
-    const txt = $('inT').value;
-    if (!txt.trim()) { track = null; $('outT').classList.add('hide'); $('stT').innerHTML = ''; return; }
-    const r = track = MH.parseTracking(txt, order);
-    $('inT').classList.toggle('has', !!r.invoice);
-    $('outT').classList.remove('hide');
-    let h = '', st = '';
-    if (r.invoice) {
-      st = r.guessed ? '<span class="warn">⚠️ 이름표가 없는 숫자예요. 송장번호가 맞는지 한 번 봐 주세요.</span>' : '<span class="ok">✅ 송장번호를 찾았어요.</span>';
-      h += '<div class="inv" id="invNo">' + esc(fmtInv(r.invoice)) + '</div>';
-      h += '<div class="wing">' + (r.wing ? '윙에서 고를 택배사: <b id="wingName">' + esc(r.wing) + '</b>' : r.carrier ? '택배사: <b>' + esc(r.carrier) + '</b><br>윙 목록 이름은 확실하지 않아요. 윙에서 직접 골라 주세요.' : '<span style="color:var(--amber);font-weight:700">⚠️ 택배사를 못 찾았어요.</span> 윙에서 직접 골라 주세요.') + '</div>';
-      h += '<button class="copyinv" id="copyInv" type="button">송장번호 복사</button>';
-      if (r.others.length) {
-        h += '<div class="hint"><span style="color:var(--amber);font-weight:700">⚠️ 송장 같은 숫자가 더 있어요.</span> 주문이 여러 개면 맞는 걸 골라 주세요.</div>';
-        r.others.forEach((o) => { h += '<div class="other"><span>' + esc(fmtInv(o)) + '</span><button class="btn" type="button" data-inv="' + esc(o) + '" data-t="복사">복사</button></div>'; });
-      }
-    } else {
-      st = r.why === 'pre' ? '<span class="warn">⚠️ 아직 배송 전 화면 같아요 (결제완료·상품준비중).</span> 송장이 나온 뒤 다시 붙여넣어 주세요.'
-        : r.why === 'dropped' ? '<span class="bad">⚠️ 송장번호로 보기 어려운 숫자만 있어요.</span> (주문번호·전화번호·자릿수가 안 맞는 숫자는 뺐어요)'
-        : '<span class="bad">⚠️ 송장번호를 못 찾았어요.</span> 배송조회 화면에서 택배사와 송장번호가 보이게 복사해 주세요.';
-      if (r.carrier) h += '<div class="wing">택배사: <b>' + esc(r.wing || r.carrier) + '</b></div>';
-    }
-    $('stT').innerHTML = st;
-    $('invCard').innerHTML = h; $('invCard').classList.toggle('hide', !h);
-    // 주문과 비교
-    let c = '';
-    if (r.check && r.invoice) {
-      const n = r.check.name, u = r.check.unit;
-      if (order.name) c += '<div class="hint">' + (n === 'same' ? '✅ 받는 분 이름이 같아요 (' + esc(order.name) + ')' : n === 'masked' ? '✅ 가려진 이름이 ' + esc(order.name) + '님과 맞아요' : n && n.indexOf('diff:') === 0 ? '⚠️ 다른 이름이 보여요: ' + esc(n.slice(5)) + ' (주문: ' + esc(order.name) + ')' : 'ℹ️ 붙여넣은 글에 받는 분 이름이 안 보여요') + '</div>';
-      if (MH.unitsOf(order.addr2)) c += '<div class="hint">' + (u === 'same' ? '✅ 동·호수가 같아요 (' + esc(order.addr2) + ')' : u === 'masked' ? 'ℹ️ 동·호수가 가려져 있어서 비교 못 했어요' : u && u.indexOf('diff:') === 0 ? '⚠️ 다른 동·호수가 보여요: ' + esc(u.slice(5)) + ' (주문: ' + esc(order.addr2) + ')' : 'ℹ️ 붙여넣은 글에 동·호수가 안 보여요') + '</div>';
-    }
-    $('chkCard').innerHTML = c; $('chkCard').classList.toggle('hide', !c);
-    const diff = r.check && [r.check.name, r.check.unit].some((x) => x && String(x).indexOf('diff:') === 0);
-    if (autoCopy && r.invoice && !r.others.length && !r.guessed && !diff) copy(r.invoice, '송장번호 ' + r.invoice).then((ok) => { const b = $('copyInv'); if (ok && b) { b.classList.add('done'); b.textContent = '✓ 복사됨 · 윙 송장칸에 붙여넣으세요'; } });
+  let listOpenT = false;
+  const withInv = () => S.list.filter((o) => o.inv);
+  const WHY = { nomatch: '맞는 주문이 없어요', many: '맞는 주문이 여러 개예요', guess: '이름표 없는 숫자예요', multi: '한 글에 송장이 여러 개예요', taken: '그 주문엔 이미 다른 송장이 있어요', noorder: '넣어 둔 주문이 없어요' };
+  function trackFrom(text) {
+    if (!String(text || '').trim()) return;
+    const r = MH.applyTracking(S.list, S.loose, text);
+    S.list = r.list; S.loose = r.loose;
+    const msg = [];
+    if (r.paired.length) { S.curT = r.paired[0]; listOpenT = false; msg.push('<span class="ok">✅ 송장 ' + r.paired.length + '개를 주문에 넣었어요.</span> (이름·동호수가 맞는 것만)'); }
+    if (r.unmatched.length) msg.push('<span class="warn">⚠️ 못 찾음 ' + r.unmatched.length + '개</span> — 어느 주문인지 확실하지 않아 짝을 안 지었어요. 아래에서 확인해 주세요.');
+    if (r.dup) msg.push('ℹ️ 이미 넣은 송장 ' + r.dup + '개는 뺐어요.');
+    if (!r.found) msg.push(r.why === 'pre' ? '<span class="warn">⚠️ 아직 배송 전 화면 같아요 (결제완료·상품준비중).</span> 송장이 나온 뒤 다시 붙여넣어 주세요.'
+      : r.why === 'dropped' ? '<span class="bad">⚠️ 송장번호로 보기 어려운 숫자만 있어요.</span> (주문번호·전화번호·자릿수가 안 맞는 숫자는 뺐어요)'
+        : '<span class="bad">⚠️ 송장번호를 못 찾았어요.</span> 배송조회 화면에서 받는 분·택배사·송장번호가 보이게 복사해 주세요.');
+    $('inT').value = ''; $('addT').classList.add('hide');
+    save(); renderO(); $('stT').innerHTML = msg.join('<br>');
+    // 짝 지은 송장이 딱 하나면 바로 복사
+    if (r.paired.length === 1 && !r.unmatched.length) { const o = S.list[idx(r.paired[0])]; copy(o.inv.no, '송장번호 ' + o.inv.no).then((ok) => { const b = $('copyInv'); if (ok && b) { b.classList.add('done'); b.textContent = '✓ 복사됨 · 윙 송장칸에 붙여넣으세요'; } }); }
   }
+  function renderT() {
+    const L = withInv(), n = L.length;
+    if (n && !L.some((o) => o.id === S.curT)) S.curT = L[0].id;
+    const i = L.findIndex((o) => o.id === S.curT), o = L[i];
+    $('pasteT').textContent = n || S.loose.length ? '📋 송장 더 붙여넣기' : '📋 송장 붙여넣기';
+    $('pagerT').classList.toggle('hide', !n);
+    $('outT').classList.toggle('hide', !n || listOpenT);
+    $('listVT').classList.toggle('hide', !n || !listOpenT);
+    if (n) {
+      const doneN = L.filter((x) => x.inv.done).length;
+      $('pageNoT').textContent = (i + 1) + ' / ' + n + (doneN ? '  ·  ✅' + doneN : '');
+      $('prevT').disabled = i <= 0; $('nextT').disabled = i >= n - 1;
+      $('listBtnT').textContent = listOpenT ? '✕ 닫기' : '📑 목록';
+      if (listOpenT) {
+        $('listSumT').textContent = '송장 ' + n + '개 (주문 ' + S.list.length + '개 중) · 윙 입력 완료 ' + doneN + '개';
+        $('listRowsT').innerHTML = L.map((x, k) => '<button class="li' + (x.id === S.curT ? ' cur' : '') + (x.inv.done ? ' fin' : '') + '" type="button" data-id="' + esc(x.id) + '"><span class="n">' + (k + 1) + '</span><span class="m">' + (x.inv.done ? '✅' : '⬜') + '</span><span class="x">' + esc(MH.maskName(x.d.name)) + '<small>' + esc(x.inv.wing || x.inv.car || '택배사 모름') + ' ·' + esc(x.inv.no.slice(-4)) + '</small></span></button>').join('');
+      } else {
+        const v = o.inv, on = S.list.findIndex((x) => x.id === o.id) + 1;
+        $('tTitle').textContent = '주문 ' + on + '번 · ' + titleOf(o);
+        $('doneT').classList.toggle('on', !!v.done); $('doneT').textContent = v.done ? '✅ 윙 입력 완료' : '⬜ 윙 입력 완료';
+        $('invCard').innerHTML = '<div class="inv" id="invNo">' + esc(fmtInv(v.no)) + '</div>' +
+          '<div class="wing">' + (v.wing ? '윙에서 고를 택배사: <b id="wingName">' + esc(v.wing) + '</b>' : v.car ? '택배사: <b>' + esc(v.car) + '</b><br>윙 목록 이름은 확실하지 않아요. 윙에서 직접 골라 주세요.' : '<span style="color:var(--amber);font-weight:700">⚠️ 택배사를 못 찾았어요.</span> 윙에서 직접 골라 주세요.') + '</div>' +
+          '<button class="copyinv" id="copyInv" type="button">송장번호 복사</button>' +
+          '<div class="hint">✅ 받는 분 이름과 동·호수(주소)가 맞아서 이 주문에 넣었어요.</div>';
+      }
+    }
+    // 못 찾음
+    const lo = S.loose;
+    $('looseV').classList.toggle('hide', !lo.length);
+    $('looseSum').textContent = '⚠️ 못 찾음 ' + lo.length + '개';
+    $('looseNote').textContent = S.list.length ? '어느 주문인지 확실하지 않아서 짝을 안 지었어요. 윙에서 받는 분을 직접 확인하고 쓰세요.' : '주문을 넣지 않아서 짝은 안 지었어요. 받는 분을 확인하고 쓰세요.';
+    $('looseRows').innerHTML = lo.map((x) => '<div class="match"><div style="font-size:21px;font-weight:900">' + esc(fmtInv(x.inv.no)) + '</div><div>' + esc(x.inv.wing || x.inv.car || '택배사 모름') + (x.who ? ' · 받는 분 ' + esc(x.who) : '') + ' · <span style="color:var(--amber)">' + esc(WHY[x.why] || '') + '</span></div>' +
+      '<div class="line" style="display:flex;gap:8px;margin-top:6px"><button class="btn" type="button" data-cp="' + esc(x.id) + '" data-t="복사">복사</button><button class="btn sub" type="button" data-rm="' + esc(x.id) + '">지우기</button></div></div>').join('');
+  }
+  const curT = () => S.list[idx(S.curT)] || null;
+  function stepT(dir) { const L = withInv(), i = L.findIndex((o) => o.id === S.curT) + dir; if (i >= 0 && i < L.length) { S.curT = L[i].id; listOpenT = false; save(); renderT(); toast((i + 1) + ' / ' + L.length + ' ' + MH.maskName(L[i].d.name)); } }
   $('invCard').addEventListener('click', (e) => {
-    const b = e.target.closest('button'); if (!b || !track) return;
-    if (b.id === 'copyInv') copy(track.invoice, '송장번호 ' + track.invoice, null).then((ok) => { if (ok) { b.classList.add('done'); b.textContent = '✓ 복사됨'; } });
-    else if (b.dataset.inv) copy(b.dataset.inv, '송장번호 ' + b.dataset.inv, b);
+    const b = e.target.closest('button'); const o = curT(); if (!b || !o) return;
+    if (b.id === 'copyInv') copy(o.inv.no, '송장번호 ' + o.inv.no).then((ok) => { if (ok) { b.classList.add('done'); b.textContent = '✓ 복사됨 · 윙 송장칸에 붙여넣으세요'; } });
+  });
+  $('doneT').addEventListener('click', () => {
+    const o = curT(); if (!o) return;
+    o.inv.done = !o.inv.done; save();
+    if (o.inv.done) { toast('✅ 윙 입력 완료'); const L = withInv(), nx = L.find((x) => !x.inv.done); if (nx) S.curT = nx.id; }
+    renderT();
+  });
+  $('prevT').addEventListener('click', () => stepT(-1));
+  $('nextT').addEventListener('click', () => stepT(1));
+  $('pageNoT').addEventListener('click', () => { listOpenT = !listOpenT; renderT(); });
+  $('listBtnT').addEventListener('click', () => { listOpenT = !listOpenT; renderT(); });
+  $('listRowsT').addEventListener('click', (e) => { const b = e.target.closest('button[data-id]'); if (b) { S.curT = b.dataset.id; listOpenT = false; save(); renderT(); } });
+  $('looseRows').addEventListener('click', (e) => {
+    const b = e.target.closest('button'); if (!b) return;
+    if (b.dataset.cp) { const x = S.loose.find((y) => y.id === b.dataset.cp); if (x) copy(x.inv.no, '송장번호 ' + x.inv.no, b); }
+    if (b.dataset.rm) { S.loose = S.loose.filter((y) => y.id !== b.dataset.rm); save(); renderT(); }
+  });
+  swipe($('outT'), stepT);
+  $('pasteT').addEventListener('click', () => pasteInto($('inT'), () => trackFrom($('inT').value)));
+  $('addT').addEventListener('click', () => trackFrom($('inT').value));
+  let toT = 0;
+  $('inT').addEventListener('input', (e) => {
+    clearTimeout(toT);
+    if (e.inputType === 'insertFromPaste') toT = setTimeout(() => trackFrom($('inT').value), 250);
+    else $('addT').classList.toggle('hide', !$('inT').value.trim());
   });
 
-  // ---------- 보관 (이 탭에서만, 1시간) ----------
-  function save() {
-    try {
-      const o = $('inO').value, k = $('inT').value;
-      if (!o && !k) { sessionStorage.removeItem(KEY); savedAt = 0; return; }
-      if (!savedAt) savedAt = Date.now();
-      sessionStorage.setItem(KEY, JSON.stringify({ t: savedAt, o, k }));
-    } catch (e) {}
-  }
+  // ---------- 다 지우기 · 시간 ----------
   function wipe(msg) {
-    $('inO').value = ''; $('inT').value = ''; order = null; track = null; savedAt = 0;
-    try { sessionStorage.removeItem(KEY); } catch (e) {}
-    renderOrder(); renderTrack();
-    if (msg) toast(msg);
+    S = { list: [], loose: [], cur: null, curT: null }; listOpen = listOpenT = false;
+    $('inO').value = ''; $('inT').value = ''; $('stO').innerHTML = ''; $('stT').innerHTML = '';
+    save(); renderO(); if (msg) toast(msg);
   }
-  function restore() {
-    try {
-      const s = JSON.parse(sessionStorage.getItem(KEY) || 'null');
-      if (!s) return;
-      if (!s.t || Date.now() - s.t > TTL) { sessionStorage.removeItem(KEY); return; }
-      savedAt = s.t; $('inO').value = s.o || ''; $('inT').value = s.k || '';
-    } catch (e) {}
-  }
-  setInterval(() => { if (savedAt && Date.now() - savedAt > TTL) wipe('1시간이 지나서 고객 정보를 지웠어요'); }, 30 * 1000);
-  document.addEventListener('visibilitychange', () => { if (!document.hidden && savedAt && Date.now() - savedAt > TTL) wipe('1시간이 지나서 고객 정보를 지웠어요'); });
+  $('clearBtn').addEventListener('click', () => {
+    const b = $('clearBtn');
+    if (!b.dataset.arm) { b.dataset.arm = '1'; b.textContent = '한 번 더 누르면 다 지워요'; setTimeout(() => { delete b.dataset.arm; b.textContent = '🗑 지우기'; }, 3000); return; }
+    delete b.dataset.arm; b.textContent = '🗑 지우기';
+    wipe('주문·송장을 다 지웠어요');
+  });
+  const tick = () => { const n0 = S.list.length + S.loose.length; load(); const gone = n0 - S.list.length - S.loose.length; if (gone > 0) toast('3시간 지난 주문·송장 ' + gone + '개를 지웠어요'); renderO(); };
+  setInterval(tick, 60 * 1000);
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) { load(); renderO(); } });
+  window.addEventListener('pageshow', () => { load(); renderO(); });
 
-  // ---------- 연결 ----------
   function showTab(t) {
     $('tabO').classList.toggle('on', t === 'O'); $('tabT').classList.toggle('on', t === 'T');
     $('pO').classList.toggle('on', t === 'O'); $('pT').classList.toggle('on', t === 'T');
@@ -658,15 +1154,10 @@
   }
   $('tabO').addEventListener('click', () => showTab('O'));
   $('tabT').addEventListener('click', () => showTab('T'));
-  $('pasteO').addEventListener('click', () => pasteInto($('inO'), () => { savedAt = Date.now(); renderOrder(); save(); }));
-  $('pasteT').addEventListener('click', () => pasteInto($('inT'), () => { renderTrack(true); save(); }));
-  let to1 = 0, to2 = 0;
-  $('inO').addEventListener('input', () => { clearTimeout(to1); to1 = setTimeout(() => { renderOrder(); save(); }, 250); });
-  $('inT').addEventListener('input', (e) => { clearTimeout(to2); const ac = e.inputType === 'insertFromPaste'; to2 = setTimeout(() => { renderTrack(ac); save(); }, 250); });
-  $('clearBtn').addEventListener('click', () => wipe('다 지웠어요'));
-  restore(); renderOrder(); renderTrack();
-  window.__mh = { showTab, renderOrder, renderTrack, wipe, state: () => ({ order, track, savedAt }) };
+  load(); renderMine(); renderO(); save();
+  window.__mh = { showTab, renderO, wipe, tick, state: () => JSON.parse(JSON.stringify(S)) };
 })();
+
 </script>
 </body>
 </html>
