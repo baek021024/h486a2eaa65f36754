@@ -914,7 +914,7 @@
   const STEPS = [['name', '받는 분'], ['phone', '연락처(내 번호)'], ['addr', '주소'], ['addr2', '상세주소'], ['memo', '배송메모']];
   let listOpen = false, buyer = null, chainList = [];
   const fmtInv = (d) => String(d || '').replace(/(\d{4})(?=\d)/g, '$1 ');
-  const titleOf = (o) => MH.maskName(o.d.name) + (o.d.product ? ' · ' + o.d.product : '');
+  const titleOf = (o) => (o.d.name || "") + (o.d.product ? ' · ' + o.d.product : '');
   function renderO() {
     const L = S.list, n = L.length;
     if (n && idx(S.cur) < 0) S.cur = L[0].id;
@@ -936,7 +936,7 @@
     const L = S.list, doneN = L.filter((x) => x.done).length;
     $('listSum').textContent = '주문 ' + L.length + '개 · 완료 ' + doneN + '개';
     $('clrDone').classList.toggle('hide', !doneN);
-    $('listRows').innerHTML = L.map((o, i) => '<button class="li' + (o.id === S.cur ? ' cur' : '') + (o.done ? ' fin' : '') + '" type="button" data-id="' + esc(o.id) + '"><span class="n">' + (i + 1) + '</span><span class="m">' + (o.done ? '✅' : '⬜') + '</span><span class="x">' + esc(MH.maskName(o.d.name)) + '<small>' + esc(o.d.product || '') + '</small></span>' + (o.inv ? '<span class="m">🚚</span>' : '') + '</button>').join('');
+    $('listRows').innerHTML = L.map((o, i) => '<button class="li' + (o.id === S.cur ? ' cur' : '') + (o.done ? ' fin' : '') + '" type="button" data-id="' + esc(o.id) + '"><span class="n">' + (i + 1) + '</span><span class="m">' + (o.done ? '✅' : '⬜') + '</span><span class="x">' + esc((o.d.name || "")) + '<small>' + esc(o.d.product || '') + '</small></span>' + (o.inv ? '<span class="m">🚚</span>' : '') + '</button>').join('');
   }
   function renderPage(o) {
     const d = o.d, msg = [];
@@ -996,12 +996,12 @@
     return null;
   }
   function go(id) { if (!id) return; S.cur = id; listOpen = false; save(); renderO(); window.scrollTo(0, 0); }
-  function step(dir) { const i = idx(S.cur) + dir; if (i >= 0 && i < S.list.length) { go(S.list[i].id); toast((i + 1) + ' / ' + S.list.length + ' ' + MH.maskName(S.list[i].d.name)); } }
+  function step(dir) { const i = idx(S.cur) + dir; if (i >= 0 && i < S.list.length) { go(S.list[i].id); toast((i + 1) + ' / ' + S.list.length + ' ' + (S.list[i].d.name || "")); } }
   function setDone(o, v) { o.done = v; o.doneAt = v ? Date.now() : 0; save(); }
   $('chain').addEventListener('click', () => {
     const o = curO(); if (!o) return;
     if ((o.step || 0) >= chainList.length) {
-      if (!o.done) { setDone(o, true); toast('✅ ' + MH.maskName(o.d.name) + ' 완료'); }
+      if (!o.done) { setDone(o, true); toast('✅ ' + (o.d.name || "") + ' 완료'); }
       const nx = nextUndone(o.id);
       if (nx) go(nx.id); else renderO();
       return;
@@ -1032,7 +1032,7 @@
     const b = $('delOne'), i = idx(S.cur); if (i < 0) return;
     if (!b.dataset.arm) { b.dataset.arm = '1'; b.textContent = '한 번 더 누르면 이 주문을 지워요'; setTimeout(() => { delete b.dataset.arm; b.textContent = '🗑 이 주문만 지우기'; }, 3000); return; }
     delete b.dataset.arm; b.textContent = '🗑 이 주문만 지우기';
-    const name = MH.maskName(S.list[i].d.name);
+    const name = (S.list[i].d.name || "");
     S.list.splice(i, 1); S.cur = S.list.length ? S.list[Math.min(i, S.list.length - 1)].id : null;
     save(); renderO(); toast(name + ' 주문을 지웠어요');
   });
@@ -1079,7 +1079,7 @@
       $('listBtnT').textContent = listOpenT ? '✕ 닫기' : '📑 목록';
       if (listOpenT) {
         $('listSumT').textContent = '송장 ' + n + '개 (주문 ' + S.list.length + '개 중) · 윙 입력 완료 ' + doneN + '개';
-        $('listRowsT').innerHTML = L.map((x, k) => '<button class="li' + (x.id === S.curT ? ' cur' : '') + (x.inv.done ? ' fin' : '') + '" type="button" data-id="' + esc(x.id) + '"><span class="n">' + (k + 1) + '</span><span class="m">' + (x.inv.done ? '✅' : '⬜') + '</span><span class="x">' + esc(MH.maskName(x.d.name)) + '<small>' + esc(x.inv.wing || x.inv.car || '택배사 모름') + ' ·' + esc(x.inv.no.slice(-4)) + '</small></span></button>').join('');
+        $('listRowsT').innerHTML = L.map((x, k) => '<button class="li' + (x.id === S.curT ? ' cur' : '') + (x.inv.done ? ' fin' : '') + '" type="button" data-id="' + esc(x.id) + '"><span class="n">' + (k + 1) + '</span><span class="m">' + (x.inv.done ? '✅' : '⬜') + '</span><span class="x">' + esc((x.d.name || "")) + '<small>' + esc(x.inv.wing || x.inv.car || '택배사 모름') + ' ·' + esc(x.inv.no.slice(-4)) + '</small></span></button>').join('');
       } else {
         const v = o.inv, on = S.list.findIndex((x) => x.id === o.id) + 1;
         $('tTitle').textContent = '주문 ' + on + '번 · ' + titleOf(o);
@@ -1099,7 +1099,7 @@
       '<div class="line" style="display:flex;gap:8px;margin-top:6px"><button class="btn" type="button" data-cp="' + esc(x.id) + '" data-t="복사">복사</button><button class="btn sub" type="button" data-rm="' + esc(x.id) + '">지우기</button></div></div>').join('');
   }
   const curT = () => S.list[idx(S.curT)] || null;
-  function stepT(dir) { const L = withInv(), i = L.findIndex((o) => o.id === S.curT) + dir; if (i >= 0 && i < L.length) { S.curT = L[i].id; listOpenT = false; save(); renderT(); toast((i + 1) + ' / ' + L.length + ' ' + MH.maskName(L[i].d.name)); } }
+  function stepT(dir) { const L = withInv(), i = L.findIndex((o) => o.id === S.curT) + dir; if (i >= 0 && i < L.length) { S.curT = L[i].id; listOpenT = false; save(); renderT(); toast((i + 1) + ' / ' + L.length + ' ' + (L[i].d.name || "")); } }
   $('invCard').addEventListener('click', (e) => {
     const b = e.target.closest('button'); const o = curT(); if (!b || !o) return;
     if (b.id === 'copyInv') copy(o.inv.no, '송장번호 ' + o.inv.no).then((ok) => { if (ok) { b.classList.add('done'); b.textContent = '✓ 복사됨 · 윙 송장칸에 붙여넣으세요'; } });
