@@ -1079,7 +1079,7 @@
       $('listBtnT').textContent = listOpenT ? '✕ 닫기' : '📑 목록';
       if (listOpenT) {
         $('listSumT').textContent = '송장 ' + n + '개 (주문 ' + S.list.length + '개 중) · 윙 입력 완료 ' + doneN + '개';
-        $('listRowsT').innerHTML = L.map((x, k) => '<button class="li' + (x.id === S.curT ? ' cur' : '') + (x.inv.done ? ' fin' : '') + '" type="button" data-id="' + esc(x.id) + '"><span class="n">' + (k + 1) + '</span><span class="m">' + (x.inv.done ? '✅' : '⬜') + '</span><span class="x">' + esc((x.d.name || "")) + '<small>' + esc(x.inv.wing || x.inv.car || '택배사 모름') + ' ·' + esc(x.inv.no.slice(-4)) + '</small></span></button>').join('');
+        $('listRowsT').innerHTML = L.map((x, k) => '<button class="li' + (x.id === S.curT ? ' cur' : '') + (x.inv.done ? ' fin' : '') + '" type="button" data-id="' + esc(x.id) + '"><span class="n">' + (k + 1) + '</span><span class="m">' + (x.inv.done ? '✅' : '⬜') + '</span><span class="x">' + esc((x.d.name || "")) + '<small>' + esc((x.d.product ? x.d.product + ' · ' : '') + (x.inv.wing || x.inv.car || '택배사 모름')) + ' ·' + esc(x.inv.no.slice(-4)) + '</small></span></button>').join('');
       } else {
         const v = o.inv, on = S.list.findIndex((x) => x.id === o.id) + 1;
         $('tTitle').textContent = '주문 ' + on + '번 · ' + titleOf(o);
