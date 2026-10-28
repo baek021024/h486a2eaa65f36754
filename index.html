@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-<meta name="robots" content="noindex,nofollow,noarchive">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#1f6feb">
@@ -145,7 +144,7 @@
     </div>
   </section>
   <div class="status hide" id="fullWarn"><span class="bad">⚠️ 휴대폰 저장 공간이 꽉 차서 저장이 안 돼요.</span> 완료한 주문을 지우거나 휴대폰 공간을 비워 주세요.</div>
-  <p class="muted" id="privacy">주문은 이 휴대폰에만 저장돼요. 인터넷으로 보내지 않아요.<br>넣은 지 3시간이 지나면 저절로 지워져요 (완료한 주문도). 🗑로 바로 지울 수도 있어요.<br>송장도 똑같이 3시간 뒤 지워져요. 내 번호는 이 휴대폰에만 남아요.</p>
+  <p class="muted" id="privacy">주문은 이 휴대폰에만 저장돼요. 인터넷으로 보내지 않아요.<br>넣은 지 하루가 지나면 저절로 지워져요 (완료한 주문도). 🗑로 바로 지울 수도 있어요.<br>송장도 똑같이 하루 뒤 지워져요. 내 번호는 이 휴대폰에만 남아요.</p>
 </main>
 <div class="toast" id="toast"></div>
 <script>
@@ -680,8 +679,8 @@
     if (a.length === 2) return a[0] + '*';
     return a[0] + '*'.repeat(a.length - 2) + a[a.length - 1];
   }
-  const KEEP_MS = 3 * 60 * 60 * 1000;  // 넣은 지 3시간 지나면 지움 (완료한 것도). 주문 개수 제한 없음
-  // 3시간 지난 주문 지우기 (완료한 것도 같음)
+  const KEEP_MS = 24 * 60 * 60 * 1000;  // 넣은 지 하루(24시간) 지나면 지움 (완료한 것도). 주문 개수 제한 없음
+  // 하루 지난 주문 지우기 (완료한 것도 같음)
   function pruneOrders(list, now) {
     now = now || Date.now();
     return (list || []).filter((o) => o && o.d && o.t && now - o.t < KEEP_MS && o.t <= now + 60000);
@@ -831,7 +830,7 @@
     const n0 = S.list.length + S.loose.length;
     S.list = MH.pruneOrders(S.list); S.loose = MH.pruneOrders(S.loose);
     const gone = n0 - S.list.length - S.loose.length;
-    if (gone) { save(); if (!quiet) toast('3시간 지난 주문·송장 ' + gone + '개를 지웠어요'); }
+    if (gone) { save(); if (!quiet) toast('하루 지난 주문·송장 ' + gone + '개를 지웠어요'); }
     return gone;
   }
   const idx = (id) => S.list.findIndex((o) => o.id === id);
@@ -1142,7 +1141,7 @@
     delete b.dataset.arm; b.textContent = '🗑 지우기';
     wipe('주문·송장을 다 지웠어요');
   });
-  const tick = () => { const n0 = S.list.length + S.loose.length; load(); const gone = n0 - S.list.length - S.loose.length; if (gone > 0) toast('3시간 지난 주문·송장 ' + gone + '개를 지웠어요'); renderO(); };
+  const tick = () => { const n0 = S.list.length + S.loose.length; load(); const gone = n0 - S.list.length - S.loose.length; if (gone > 0) toast('하루 지난 주문·송장 ' + gone + '개를 지웠어요'); renderO(); };
   setInterval(tick, 60 * 1000);
   document.addEventListener('visibilitychange', () => { if (!document.hidden) { load(); renderO(); } });
   window.addEventListener('pageshow', () => { load(); renderO(); });
